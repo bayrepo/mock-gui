@@ -1,0 +1,125 @@
+<%= erb :header %>
+    <script src="/js/edit_area_full.js"></script>
+    <script language="javascript" type="text/javascript">
+        editAreaLoader.init({
+            id: "codedata",
+            syntax: "bash",
+            start_highlight: true,
+            language: "ru",
+            toolbar: "search, go_to_line, fullscreen, |, undo, redo, |, select_font,|, highlight, reset_highlight, word_wrap, |, syntax_selection"
+        });
+    </script>
+    <script src="/js/jquery.dropdown.min.js"></script>
+    <% unless @error_data.nil? %>
+    <div class="container">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert"><span><%= @error_data %></span><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button></div>
+    </div>
+    <% end %>
+    <div class="container">
+        <form action="/recips/<%= ERB::Util.url_encode(@rcp_id) %>" method="post">
+            <div class="mb-3">
+                <label for="filepath" class="form-label">Имя рецепта (англиские буквы, _, .)</label>
+                <input type="text" class="form-control" id="filepath" name="filepath" value="<%= @old_filepath %>">
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Описание рецепта сборки</label>
+                <textarea class="form-control" id="description" name="description" rows="3"><%= @old_description %></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="codedata" class="form-label">Код</label>
+                <textarea class="form-control" id="codedata" name="codedata" rows="15"><%= @old_codedata %></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="gitlist" class="form-label">git проекты, использующие рецепт</label>
+                <div class="gitlist">
+                    <select class="form-control" id="gitlst" name="gitlst[]" multiple>
+                    <% @repo_data.each do |item| %>
+                        <% if !@old_gitlst.nil? && @old_gitlst.include?(item[:id].to_s) %>
+                            <option value="<%= item[:id] %>" selected><%= item[:reponame] %></option>
+                        <% else %>
+                            <option value="<%= item[:id] %>"><%= item[:reponame] %></option>
+                        <% end %>
+                    <% end %>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 text-center">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <button type="submit" class="btn btn-danger" id="delete">Удалить</button>
+                <div id="winkeeper"></div>
+            </div>
+        </form>
+    </div>
+    <script>
+        $('.gitlist').dropdown({
+            searchNoData: '<li style="color:#ddd">Нет данных</li>',
+        });
+    </script>
+    <script src="/js/jquery-confirm.min.js"></script>
+    <script>
+        $("#delete").confirm({
+            title: 'Подтвердите удаление репозитория!',
+            content: '' +
+            '<div class="container">' +
+            '<form action="/rcpdelete/<%= ERB::Util.url_encode(@rcp_id) %>" class="formName" method="post">' +
+            '<div class="text-danger mx-auto p-2">' +
+            '<label>Введите название удаляемого рецепта</label>' +
+            '<input type="text" class="frmchk form-control" required name="rcpnamedup"/>' +
+            '<input type="hidden" class="frmchk form-control" id="rcphid" name="rcphid" value="<%= @rcp_name %>"/>' +
+            '</div>' +
+            '</form>' +
+            '</div>',
+            container: '#winkeeper',
+            theme: 'bootstrap',
+            buttons: {
+                formSubmit: {
+                    text: 'Удалить',
+                    titleClass: 'text-danger mx-auto p-2',
+                    btnClass: 'btn btn-danger',
+                    action: function () {
+                        var correct_name = this.$content.find("#rcphid").val();
+                        var name = this.$content.find('.frmchk').val();
+                        if(!name){
+                            $.alert({
+                                title: 'Предупреждение!',
+                                content: 'Название не может быть пустым',
+                                container: '#winkeeper',
+                                theme: 'bootstrap',
+                                buttons: {
+                                    ok: {
+                                        text: 'Хорошо',
+                                        btnClass: 'btn btn-danger',
+                                    }
+                                }
+                            });
+                            return false;
+                        }
+                        if (name != correct_name){
+                            $.alert({
+                                title: 'Предупреждение!',
+                                content: 'Название задано неверно',
+                                container: '#winkeeper',
+                                theme: 'bootstrap',
+                                buttons: {
+                                    ok: {
+                                        text: 'Хорошо',
+                                        btnClass: 'btn btn-danger',
+                                    }
+                                }
+                            });
+                            return false;
+                        }
+                        this.$content.find('form').submit();
+                        return true;
+                    }
+                },
+                cancel:  {
+                    text: 'Отменить',
+                    btnClass: 'btn btn-primary',
+                    action: function () {
+                    //close
+                    }},
+            },
+        });
+    </script>
+<%= erb :footer %>

@@ -1,0 +1,51 @@
+<%= erb :header %>
+<div class="container">
+        <div class="row">
+            <div class="col-4">
+                <h3 class="bg-secondary-subtle text-center border-bottom border-primary-subtle rounded-1 pb-1 mb-2">
+                    <a href="/prjedit/<%= ERB::Util.url_encode(@proj_id) %>"><%= @proj_name %></a>
+                </h3>
+                <div class="pb-2"><%= @proj_descr %></div>
+                <div class="pb-2">git репозиторий <%= @git_name %></div>
+                <div class="list-group">
+                    <a href="/buildinforaw/<%= ERB::Util.url_encode(@build_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-filetype-raw"></i><span class="ms-2">Посмотреть полный log файл процесса</span></a>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="hstack gap-3">
+                    <div class="p-2">Процесс сборки</div>
+                    <div><button type="button" class="btn btn-outline-primary" id="startBtn"><i
+                                class="bi bi-play-fill"></i></button>
+                    </div>
+                    <div><button type="button" class="btn btn-outline-primary" id="stopBtn"><i
+                                class="bi bi-pause-fill"></i></button>
+                    </div>
+                </div>
+                <div class="ratio ratio-4x3">
+                    <iframe src="/buildinfo/<%= ERB::Util.url_encode(@build_id) %>" title="Процесс сборки" id="bldframe" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var intervalId = null;
+        $(function () {
+            intervalId = setInterval(refreshiframe, 5000);
+        });
+        function refreshiframe() {
+            $('#bldframe').attr('src', $('#bldframe').attr('src'));
+        }
+        $("#startBtn").click(function () {
+            if (intervalId == null) {
+                intervalId = setInterval(refreshiframe, 5000);
+            }
+        })
+        $("#stopBtn").click(function () {
+            if (intervalId != null) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+        })
+    </script>
+<%= erb :footer %>

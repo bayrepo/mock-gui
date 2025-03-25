@@ -1,0 +1,18 @@
+<%= erb :header %>
+    <div class="container">
+        <h2 class="text-center">Удаление проекта <%= @proj_name %></h2>
+        <form action="/prjdelete/<%= ERB::Util.url_encode(@proj_id) %>" method="post">
+            <div class="form-check form-switch text-center pb-3">
+                <input class="form-check-input" type="checkbox" role="switch" id="isdelete" name="isdelete">
+                <label class="form-check-label" for="isdelete">
+                    Вы уверены, что хотите удалить данный проект?<br />
+                    Все репозитории проекта и сборки будут удалены, действие не подлежит отмене.
+                </label>
+            </div>
+            <div class="mb-3 text-center">
+                <button type="submit" class="btn btn-primary" name="cancel" value="cancel">Отменить</button>
+                <button type="submit" class="btn btn-danger" name="delete" value="delete">Удалить</button>
+            </div>
+        </form>
+    </div>
+<%= erb :footer %>

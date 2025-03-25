@@ -1,0 +1,46 @@
+<%= erb :header %>
+    <div class="container">
+        <a class="btn btn-primary mb-3" href="/rpms" role="button">К списку пакетов для всех репозиториев</a>
+    </div>
+    <div class="container">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Имя пакета</th>
+                    <th scope="col" class="text-center">Дата создания</th>
+                    <th scope="col" class="text-center">Git репозиторий</th>
+                    <th scope="col" class="text-center">Номер сборки</th>
+                    <th scope="col" class="text-center">Проект</th>
+                    <th scope="col" class="text-center">Информация о пакете</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% @rpms_list.each do |item| %>
+                <tr>
+                    <td scope="row"><%= item[:rpmname] %></td>
+                    <td><%= item[:create_at] %></td>
+                    <td class="text-center"><a href="/repos/<%= ERB::Util.url_encode(item[:repoid]) %>"><%= item[:repoid] %></a></td>
+                    <td class="text-center"><a href="/buildinfof/<%= ERB::Util.url_encode(item[:builid]) %>">build#<%= item[:builid] %></a></td>
+                    <td class="text-center"><a href="/prjedit/<%= ERB::Util.url_encode(item[:prjid]) %>">Перейти к проекту</a></td>
+                    <td class="text-center"><a href="/rpminfo/<%= ERB::Util.url_encode(item[:rpmid]) %>">Информация о пакете</a></td>
+                </tr>
+                <% end %>
+            </tbody>
+        </table>
+    </div>
+    <div class="container">
+        <nav aria-label="Навигация по доступным пакетам">
+            <ul class="pagination pagination-sm justify-content-center">
+                <% @max_pages.times.each do |item| %>
+                <% if (item+1) == @page %>
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link"><%= item+1 %></span>
+                </li>
+                <% else %>
+                <li class="page-item"><a class="page-link" href="/gitpackages/<%= ERB::Util.url_encode(@git_id) %>?p=<%= item+1 %>"><%= item+1 %></a></li>
+                <% end %>
+                <% end %>
+            </ul>
+        </nav>
+    </div>
+<%= erb :footer %>

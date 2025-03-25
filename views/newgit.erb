@@ -1,0 +1,16 @@
+<%= erb :header %>
+    <% unless @error_data.nil? %>
+    <div class="container">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert"><span><%= @error_data %></span><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button></div>
+    </div>
+    <% end %>
+    <div class="container">
+        <form method="post">
+            <label class="form-label">Название git репозитория, без пробелов, все extra символы (не входящие в диапазон a-z,A-Z,0-9,_) будут преобразованы в подчеркивание</label>
+            <input class="form-control border-primary" type="text" name="gitname" id="gitname" required>
+            <label class="form-label">Описание репозитория</label>
+            <textarea class="form-control border-primary" name="gitdescr" id="gitdescr"></textarea>
+            <div class="text-end" style="padding-top: 45px;"><button class="btn btn-primary" type="submit">Создать</button></div>
+        </form>
+    </div>
+<%= erb :footer %>

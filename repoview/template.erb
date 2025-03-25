@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>
+        Список достпуных в репозитории пакетов
+    </title>
+    <link rel="stylesheet" href="bootstrap.min.css">
+</head>
+
+<body>
+
+    <div class="container p-3">
+        <p>Для подключения репозитория в своей системе используейте команду</p>
+        <div class="alert alert-warning" role="alert">
+            <pre>
+echo -e "[<%= repo_name %>]
+name=msvsphere9 repo on repo.brepo.ru
+baseurl=<%= repo_url %>
+enabled=1
+gpgkey=<%= repo_url %><%= repo_name %>-gpg-key
+gpgcheck=1" > /etc/yum.repos.d/<%= repo_name %>.repo
+            </pre>
+        </div>
+    </div>
+    <div class="container p-3">
+        <div class="card border-warning mb-3">
+            <div class="card-header">Список доступных в репозитории пакетов</div>
+            <div class="card-body">
+                <h5 class="card-title text-danger-emphasis">Всего пакетов <%= pkg_num %></h5>
+                <div class="accordion" id="dirInfo">
+                    <% repo_data.each_with_index do |item, index| %>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#id<%= index %>" aria-expanded="false" aria-controls="id<%= index %>">
+                                <%= item[1] %>
+                            </button>
+                        </h2>
+                        <div id="id<%= index %>" class="accordion-collapse collapse" data-bs-parent="#dirInfo">
+                            <div class="accordion-body">
+                                <div class="accordion accordion-flush" id="rpmInfo">
+                                    <% item[0].each_with_index do |idata, jndex| %>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#rid<%= jndex %>" aria-expanded="false"
+                                                aria-controls="rid<%= jndex %>">
+                                                <%= idata[:fname] %>  (<%= idata[:stat]%>)
+                                            </button>
+                                        </h2>
+                                        <div id="rid<%= jndex %>" class="accordion-collapse collapse" data-bs-parent="#rpmInfo">
+                                            <div class="accordion-body">
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item list-group-item-warning"> Скачать пакет - <a href="<%= idata[:aname] %>"><%= idata[:fname] %></a> </li>
+                                                    <% idata[:chlog].each do |chlg| %>
+                                                    <li class="list-group-item list-group-item-warning"> <%= chlg.text %> </li>
+                                                    <% end %>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% end %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="bootstrap.bundle.min.js"></script>
+</body>
+</html>

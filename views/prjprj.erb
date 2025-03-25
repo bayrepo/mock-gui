@@ -1,0 +1,64 @@
+<%= erb :header %>
+<script src="/js/jquery.dropdown.min.js"></script>
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                <h3 class="bg-secondary-subtle text-center border-bottom border-primary-subtle rounded-1 pb-1 mb-2">
+                    <a href="/prjedit/<%= ERB::Util.url_encode(@proj_id) %>"><%= @proj_name %></a>
+                </h3>
+                <div class="pb-2"><%= @proj_descr %></div>
+            </div>
+            <div class="col-8">
+                <div class="vstack gap-3">
+                    <form action="/prjaddrepo/<%= ERB::Util.url_encode(@proj_id) %>" method="post">
+                        <div class="mb-3">
+                            <label for="prjlst" class="form-label">Выбирете проекты, от которых зависит данный
+                                проект</label>
+                            <div class="prjlist">
+                                <select class="form-control" id="prjlst" name="prjlst[]" multiple>
+                                    <% @all_projects.each do |item| %>
+                                    <%   
+                                        if item[:id] == @proj_id.to_i
+                                            next
+                                        end
+                                        fnd = false
+                                        @projects_list.each do |f_i|
+                                            if f_i[:prj_info][:id] == item[:id]
+                                                fnd = true
+                                                break
+                                            end 
+                                        end
+                                    %>
+                                    <% if fnd %>
+                                    <option value="<%= item[:id]%>" selected><%= item[:projname] %></option>
+                                    <%  else %>
+                                    <option value="<%= item[:id]%>"><%= item[:projname] %></option>
+                                    <%  end %>
+                                    <% end %>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="disableLinks"
+                                name="disableLinks" value="disableLinks">
+                            <label class="form-check-label" for="disableLinks">Удалить связи со всеми проектами</label>
+                        </div>
+                        <div class="container">
+                            <div style="padding-top: 45px;"></div>
+                        </div>
+                        <div class="mb-3 text-center">
+                            <button type="submit" class="btn btn-primary" name="save" value="save">Сохранить</button>
+                            <button type="submit" class="btn btn-secondary" name="cancel"
+                                value="cansel">Отменить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('.prjlist').dropdown({
+            searchNoData: '<li style="color:#ddd">Нет данных</li>',
+        });
+    </script>
+<%= erb :footer %>

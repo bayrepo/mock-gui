@@ -1,0 +1,18 @@
+<%= erb :header %>
+    <div class="container">
+        <h2 class="text-center">Установить адрес для репозитория проекта <%= @proj_name %></h2>
+        <form action="/prjremoteaddr/<%= ERB::Util.url_encode(@proj_id) %>" method="post">
+            <div class="text-center pb-3">
+                <label class="form-label" for="address">
+                    Укажите адрес удаленного репозитория:
+                </label>
+                <input class="form-control" type="text" id="address" name="address" value="<%= @addres %>">
+            </div>
+            <div class="mb-3 text-center">
+                <button type="submit" class="btn btn-primary" name="cancel" value="cancel">Отменить</button>
+                <button type="submit" class="btn btn-danger" name="reset" value="reset">Сбросить адрес</button>
+                <button type="submit" class="btn btn-info" name="addr" value="addr">Установить адрес</button>
+            </div>
+        </form>
+    </div>
+<%= erb :footer %>

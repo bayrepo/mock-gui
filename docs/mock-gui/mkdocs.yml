@@ -1,0 +1,24 @@
+site_name: MockGUI
+site_url: https://docs.brepo.ru/mockgui/
+nav:
+  - index.md
+  - install.md
+  - run.md
+  - docs.md
+  - Инструкция пользователя: 
+    - common.md
+    - userguide/configuration.md
+    - userguide/gits.md
+    - userguide/recips.md
+    - userguide/env.md
+    - userguide/projects.md
+    - userguide/builds.md
+    - userguide/rpms.md
+theme:
+  name: readthedocs
+  locale: ru
+extra:
+  generator: false
+copyright: Copyright &copy; 2025 - ... BayRepo
+repo_url: https://dev.brepo.ru/brepo/mock-gui
+

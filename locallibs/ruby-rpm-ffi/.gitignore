@@ -1,0 +1,8 @@
+*.gem
+.bundle
+Gemfile.lock
+pkg/*
+*.rbc
+.yardoc
+.idea
+test/test_many_files.rb

@@ -1,0 +1,21 @@
+<%= erb :header %>
+    <div class="container">
+        <h3 class="text-center"><%= @filename %></h3>
+        <div class="container border bg-light pb-2 pt-2 text-secondary">
+        <% @content.each do |line| %>
+        <% if line =~ /^include\(/
+            dn = File.dirname(@filename)
+            result = line.match /^include\s*\('(?<fl>\S+)'\)/
+            if result.nil?
+        %>
+            <p class="p-0 m-0"><%= line %></p>
+        <%  else  link = File.join(dn, result[:fl]) %>
+        <p class="p-0 m-0"><a href="/bldcfginfo?info=<%= ERB::Util.url_encode(link) %>" class="link-dark link-underline-secondary"><%= line %></a></p>
+        <%  end 
+           else %>
+            <p class="p-0 m-0"><%= line %></p>
+        <% end %>
+        <% end %>
+        </div>
+    </div>
+<%= erb :footer %>

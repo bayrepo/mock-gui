@@ -1,0 +1,122 @@
+<%= erb :header %>
+    <script src="/js/jquery.dropdown.min.js"></script>
+    <div class="container">
+        <% unless @modal_text.nil? %>
+        <div class="modal fade" id="modalData" aria-hidden="true" aria-labelledby="modalDataLabel"
+            tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="modalDataLabel"><%= @modal_info %></h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body">
+                        <%= @modal_text %>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-bs-dismiss="modal">Закрыть</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% end %>
+        <div class="row">
+            <div class="col-4">
+                <h3 class="bg-secondary-subtle text-center border-bottom border-primary-subtle rounded-1 pb-1 mb-2">
+                    <%= @proj_name %>
+                </h3>
+                <div class="pb-2"><%= @proj_descr %></div>
+                <div class="pb-2">
+                    <% if @proj_public == 1 %>
+                        Разрешена публикация пакетов с исходными кодами
+                    <% else %>
+                        Запрещена публикация пакетов с исходными кодами
+                    <% end %>
+                </div>
+                <div class="list-group">
+                    <a href="/prjcfg/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-pen"></i><span class="ms-2">Редактировать
+                        конфигурацию сборки</span></a>
+                    <a href="/prjaddrepo/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-archive"></i><span class="ms-2">Добавить внутренний репозиторий из другого проекта</span></a>
+                    <a href="/prjrpm/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-box"></i><span class="ms-2">Список всех
+                        пакетов</span></a>
+                    <a href="/prjbuilds/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-list"></i><span class="ms-2">Список сборок проекта</span></a>
+                    <a href="/prjsign/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-pencil-square"></i><span class="ms-2">Подписать</span></a>
+                    <a href="/prjsignview/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-file-earmark-diff"></i><span class="ms-2">Просмотр подписанного репозитория</span></a>
+                    <a href="/prjremoteaddr/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-pin-map-fill"></i><span class="ms-2">Установить адрес подписаннго репозитория</span></a>
+                    <a href="/prjdelete/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-trash"></i><span class="ms-2">Удалить проект</span></a>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="vstack gap-3">
+                    <div class="p-2">
+                        <form action="/prjagit/<%= ERB::Util.url_encode(@proj_id) %>" method="post">
+                            <div class="mb-3">
+                                <label for="gitlist" class="form-label">Добавить git репозиторий к проекту</label>
+                                <div class="gitlist">
+                                    <select class="form-control" id="gitlist" name="gitlist">
+                                        <% @repo_list.each do |item|  %>
+                                            <option value="<%= item[:id] %>"><%= item[:reponame] %></option>
+                                        <% end %>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3 text-center">
+                                <button type="submit" class="btn btn-primary">Добавить</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="p-2 border border-primary rounded-2">
+                        <% @proj_repo.each do |item| %>
+                        <div class="row justify-content-between border-bottom border-light-subtle m-2">
+                            <% unless item[:is_repo_synced] %>
+                            <div class="col-8">
+                            <% else %>
+                            <div class="col-7">
+                            <% end %>
+                                <a href="/prjgitf/<%= ERB::Util.url_encode(@proj_id) %>/<%= ERB::Util.url_encode(item[:id]) %>" class="p-2"><%= item[:reponame] %></a>
+                            </div>
+                            <div class="col-1">
+                                <a href="/prjdgit/<%= ERB::Util.url_encode(@proj_id) %>/<%= ERB::Util.url_encode(item[:id]) %>" class="p-2"><i class="bi bi-trash"></i></a>
+                            </div>
+                            <% unless item[:is_repo_synced] %>
+                            <div class="col-1">
+                                <a href="/prjrgit/<%= ERB::Util.url_encode(@proj_id) %>/<%= ERB::Util.url_encode(item[:id]) %>" class="p-2"><i class="bi bi-arrow-clockwise"></i></a>
+                            </div>
+                            <% end %>
+                            <div class="col-1">
+                                <a href="/gitbld/<%= ERB::Util.url_encode(@proj_id) %>/<%= ERB::Util.url_encode(item[:id]) %>" class="p-2"><i class="bi bi-play-fill"></i></a>
+                            </div>
+                            <div class="col-1">
+                                <a href="/gitspec/<%= ERB::Util.url_encode(@proj_id) %>/<%= ERB::Util.url_encode(item[:id]) %>" class="p-2"><i class="bi bi-arrow-down-right-square"></i></a>
+                            </div>
+                            <div class="col-1">
+                                <a href="/prjgitbld/<%= ERB::Util.url_encode(@proj_id) %>/<%= ERB::Util.url_encode(item[:id]) %>" class="p-2"><i class="bi bi-bricks"></i></a>
+                            </div>
+                        </div>
+                        <% end %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('.gitlist').dropdown({
+            searchNoData: '<li style="color:#ddd">Нет данных</li>',
+        });
+    </script>
+    <% unless @modal_text.nil? %>
+    <script type="text/javascript">
+        $(window).on('load', function () {
+            $('#modalData').modal('show');
+        });
+    </script>
+    <% end %>
+<%= erb :footer %>

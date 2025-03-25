@@ -1,0 +1,36 @@
+<%= erb :header %>
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                <h3 class="bg-secondary-subtle text-center border-bottom border-primary-subtle rounded-1 pb-1 mb-2">
+                    <a href="/prjedit/<%= ERB::Util.url_encode(@proj_info[:id]) %>"><%= @proj_info[:projname] %></a>
+                </h3>
+                <div class="list-group">
+                    <% @files_list.each do |item| %>
+                    <% if item[:isdir] %>
+                    <% if item[:file] == ".." %>
+                    <a href="/prjrpm/<%= ERB::Util.url_encode(@proj_info[:id]) %>?p=<%= ERB::Util.url_encode(item[:fname]) %>" class="list-group-item list-group-item-action list-group-item-success"><%= item[:file] %></a>
+                    <% else %>
+                    <a href="/prjrpm/<%= ERB::Util.url_encode(@proj_info[:id]) %>?p=<%= ERB::Util.url_encode(item[:file]) %>" class="list-group-item list-group-item-action list-group-item-success"><%= item[:file] %></a>
+                    <% end %>
+                    <% else %>
+                    <a href="/prjrpm/<%= ERB::Util.url_encode(@proj_info[:id]) %>?p=<%= ERB::Util.url_encode(item[:file]) %>" class="list-group-item list-group-item-action list-group-item-light"><%= item[:file] %></a>
+                    <% end %>
+                    <% end %>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="mb-2 p-2 bg-success-subtle rounded-2 text-sm-start"><%= @file_name %>
+                <% unless @raw.nil? %>
+                    <a href="/buildinfofraw?file=<%= ERB::Util.url_encode(@raw) %>"><i class="bi bi-filetype-raw"></i></a>
+                <% end %>
+                </div>
+                <% @file_content.each do |data| %>
+                <div class="row">
+                    <div class="col-12"><%= data %></div>
+                </div>
+                <% end %>
+            </div>
+        </div>
+    </div>
+<%= erb :footer %>

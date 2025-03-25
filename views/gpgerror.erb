@@ -1,0 +1,60 @@
+<%= erb :header %>
+    <div class="container">
+        <h2 class="text-bg-danger text-center rounded-3 mb-3">Отсуствуют ключи для подписи</h2>
+        <p class="text-danger">Важный момент - сохраните файл ~/.rpmmacros, т.к. он будет перезаписан командой <span
+                class="text-success">install-key</span></p>
+        <p>Для создания ключа, необходимо запустить скрипт <span class="text-success">install-key</span> из каталога
+            gen-scripts</p>
+        <div class="card">
+            <div class="card-header">
+                Параметры запуска скрипта
+            </div>
+            <div class="card-body">
+                <blockquote class="blockquote mb-0">
+                    <p class="font-monospace">bash install-key UserName Email TimeToExpireInSecondsFromCurrentTime
+                        PhassPhrase</p>
+                    <footer class="blockquote-footer">
+                        <p>Где:</p>
+                        <ul>
+                            <li>UserName - имя вадельца ключа</li>
+                            <li>Email - почта владельца ключа</li>
+                            <li>TimeToExpireInSecondsFromCurrentTime - время в секундах до истечения срока давности
+                                ключа</li>
+                            <li>PhassPhrase - пароль для ключа</li>
+                        </ul>
+                    </footer>
+                </blockquote>
+            </div>
+        </div>
+        <p>После генерации ключа пароль будет сохранен:</p>
+        <div class="card text-bg-light mb-3">
+            <div class="card-header">Сохранение пароля в файл (да, небезопасно, но пока так) в каталог keys</div>
+            <div class="card-body">
+                <h5 class="card-title">каталог keys/save</h5>
+                <p class="card-text">Храните файл как зеницу ока!</p>
+            </div>
+        </div>
+        <p>Примеры генерации ключа:</p>
+        <div class="card text-bg-light mb-3">
+            <div class="card-header">Создание ключа на один год</div>
+            <div class="card-body">
+                <h5 class="card-title">В сеундах: 366 * 24 * 60 * 60 = 31622400</h5>
+                <p class="card-text">./install-key RpmKeeper rpmkeeper@test.example.ru 31622400 12345678</p>
+            </div>
+        </div>
+        <div class="card text-bg-light mb-3">
+            <div class="card-header">Создание ключа на 10 лет</div>
+            <div class="card-body">
+                <h5 class="card-title">В сеундах: 366 * 10 * 24 * 60 * 60 = 316224000</h5>
+                <p class="card-text">./install-key RpmKeeper rpmkeeper@test.example.ru 316224000 12345678</p>
+            </div>
+        </div>
+        <div class="card text-bg-light mb-3">
+            <div class="card-header">Создание ключа на 5 лет</div>
+            <div class="card-body">
+                <h5 class="card-title">В сеундах: 366 * 5 * 24 * 60 * 60 = 1581120000</h5>
+                <p class="card-text">./install-key RpmKeeper rpmkeeper@test.example.ru 158112000 12345678</p>
+            </div>
+        </div>
+    </div>
+<%= erb :footer %>

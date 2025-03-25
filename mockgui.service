@@ -1,0 +1,19 @@
+[Unit]
+Description=MockGUI application server
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=mockgui
+Group=mockgui
+Environment=RACK_ENV=production
+WorkingDirectory=/home/mockgui/mock-gui
+ExecStart=/opt/brepo/ruby33/bin/bundle exec /opt/brepo/ruby33/bin/ruby app.rb
+#UMask=0002
+RestartSec=1
+Restart=on-failure
+SyslogIdentifier=mockgui_server
+LimitNOFILE=15360
+
+[Install]
+WantedBy=multi-user.target

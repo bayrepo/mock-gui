@@ -1,0 +1,111 @@
+<%= erb :header %>
+    <div class="container py-4 py-xl-5">
+        <div class="row gy-4 row-cols-2 row-cols-md-4">
+            <div class="col">
+                <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
+                    <div class="bs-icon-xl bs-icon-circle bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-gear">
+                            <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"></path>
+                            <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"></path>
+                        </svg></div>
+                    <div class="px-3">
+                        <h2 class="fw-bold mb-0"><%= @prj_number %></h2>
+                        <p class="mb-0">Проектов</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
+                    <div class="bs-icon-xl bs-icon-circle bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-box">
+                            <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5 8 5.961 14.154 3.5 8.186 1.113zM15 4.239l-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z"></path>
+                        </svg></div>
+                    <div class="px-3">
+                        <h2 class="fw-bold mb-0"><%= @rpm_number %></h2>
+                        <p class="mb-0">Пакетов</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
+                    <div class="bs-icon-xl bs-icon-circle bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-bar-chart">
+                            <path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5v12h-2V2h2zm-2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1h-2zM6 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm-5 4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-3z"></path>
+                        </svg></div>
+                    <div class="px-3">
+                        <h2 class="fw-bold mb-0"><%= @repos_number %></h2>
+                        <p class="mb-0">Репозиториев</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="text-center d-flex flex-column justify-content-center align-items-center py-3">
+                    <div class="bs-icon-xl bs-icon-circle bs-icon-primary d-flex flex-shrink-0 justify-content-center align-items-center d-inline-block mb-2 bs-icon lg"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" class="bi bi-cart2">
+                            <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l1.25 5h8.22l1.25-5H3.14zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"></path>
+                        </svg></div>
+                    <div class="px-3">
+                        <h2 class="fw-bold mb-0"><%= @rcp_number %></h2>
+                        <p class="mb-0">Рецепты</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6" style="padding: 12px;">
+                <div class="card" style="background: rgb(227,227,227);border-radius: 15px;">
+                    <div class="card-body">
+                        <h4 class="card-title">Git репозитории</h4>
+                        <p class="card-text">Посмотреть список всех доступных репозиториев</p><a class="card-link" href="/repos">Перейти к репозиториям</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="padding: 12px;">
+                <div class="card" style="background: rgb(227,227,227);border-radius: 15px;">
+                    <div class="card-body">
+                        <h4 class="card-title">Проекты</h4>
+                        <p class="card-text">Проекты - это группировка git репозиториев, конфигураций сборки, а так же пакетов, собранных из git проекта</p><a class="card-link" href="/projs">Перейти к проектам</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6" style="padding: 12px;">
+                <div class="card" style="background: rgb(227,227,227);border-radius: 15px;">
+                    <div class="card-body">
+                        <h4 class="card-title">Пакеты</h4>
+                        <p class="card-text">Список всех собранных rpm пакетов</p><a class="card-link" href="/rpms">Перейти к rpm пакетам</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="padding: 12px;">
+                <div class="card" style="background: rgb(227,227,227);border-radius: 15px;">
+                    <div class="card-body">
+                        <h4 class="card-title">Рецепты</h4>
+                        <p class="card-text">Список всех доступных рецептов для каждого git репозитория</p><a class="card-link" href="/recips">Перейти к рецептам</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6" style="padding: 12px;">
+                <div class="card" style="background: rgb(227,227,227);border-radius: 15px;">
+                    <div class="card-body">
+                        <h4 class="card-title">Окружения сборки</h4>
+                        <p class="card-text">Список всех доступных окружений сборки</p><a class="card-link" href="/bldcfg">Перейти к списку достпуных окружений</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="padding: 12px;">
+                <div class="card" style="background: rgb(227,227,227);border-radius: 15px;">
+                    <div class="card-body">
+                        <h4 class="card-title">Список сборок</h4>
+                        <p class="card-text">Список всех сборок по всем проектам</p><a class="card-link" href="/builds">Перейти к списку сборок</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<%= erb :footer %>

@@ -1,0 +1,64 @@
+<%= erb :header %>
+    <script src="/js/edit_area_full.js"></script>
+    <script language="javascript" type="text/javascript">
+        editAreaLoader.init({
+            id: "cfginfo",
+            syntax: "mock",
+            start_highlight: true,
+            language: "ru",
+            toolbar: "search, go_to_line, fullscreen, |, undo, redo, |, select_font,|, highlight, reset_highlight, word_wrap, |, syntax_selection"
+        });
+    </script>
+    <script src="/js/jquery.dropdown.min.js"></script>
+    <div class="container">
+        <% unless @modal_text.nil? %>
+        <div class="modal fade" id="modalData" aria-hidden="true" aria-labelledby="modalDataLabel"
+            tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="modalDataLabel"><%= @modal_info %></h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body">
+                        <%= @modal_text %>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-bs-dismiss="modal">Закрыть</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% end %>
+        <div class="row">
+            <div class="col-4">
+                <h3 class="bg-secondary-subtle text-center border-bottom border-primary-subtle rounded-1 pb-1 mb-2">
+                    <a href="/prjedit/<%= ERB::Util.url_encode(@proj_id) %>"><%= @proj_name %></a>
+                </h3>
+                <div class="pb-2"><%= @proj_descr %></div>
+            </div>
+            <div class="col-8">
+                <div class="mb-2 p-2 bg-success-subtle rounded-2 text-sm-start"><%= @project_cfg_tmpl %></div>
+                <div class="container">
+                    <form action="/prjcfg/<%= ERB::Util.url_encode(@proj_id) %>" method="post" id="sbmt">
+                        <div class="mb-3">
+                            <label for="cfginfo" class="form-label">Содержимое файла конфигурации</label>
+                            <textarea class="form-control" id="cfginfo" name="cfginfo" rows="20"><%= @file_content %></textarea>
+                        </div>
+                        <div class="mb-3 text-center">
+                            <button type="submit" class="btn btn-primary" name="save" value="1">Сохранить</button>
+                            <button type="submit" class="btn btn-danger" name="cancel" valeu ="2">Отменить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% unless @modal_text.nil? %>
+    <script type="text/javascript">
+        $(window).on('load', function () {
+            $('#modalData').modal('show');
+        });
+    </script>
+    <% end %>
+<%= erb :footer %>

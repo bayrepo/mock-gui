@@ -1,0 +1,123 @@
+- name: Install MockGUI
+  hosts: localhost
+  connection: local
+  become: True
+  become_user: root
+  become_method: su
+  tasks:
+    - name: Disable SELinux
+      ansible.posix.selinux:
+        state: disabled
+    
+    - name: Stop and disable firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: stopped
+        enabled: false
+
+    - name: Stop and disable nftables
+      ansible.builtin.service:
+        name: nftables
+        state: stopped
+        enabled: false
+
+    - name: Add mockgui user
+      ansible.builtin.user:
+        name: mockgui
+        create_home: yes
+        home: /home/mockgui
+      
+    - name: Add mockgui repo file
+      ansible.builtin.copy:
+        dest: "/etc/yum.repos.d/brepo_projects.repo"
+        content: |
+          [brepo_projects]
+          name=msvsphere9 repo on repo.brepo.ru
+          baseurl=https://repo.brepo.ru/hestia/
+          enabled=1
+          gpgkey=https://repo.brepo.ru/hestia/brepo_projects-gpg-key
+          gpgcheck=1
+    
+    - name: Install epel repository
+      ansible.builtin.dnf:
+        name: epel-release
+        state: present
+    
+    - name: Install other needed packages
+      ansible.builtin.dnf:
+        name:
+          - mock 
+          - rpmdevtools 
+          - rpm-build 
+          - ccache 
+          - rpm-sign 
+          - sqlite 
+          - sqlite-devel 
+          - alt-brepo-ruby33 
+          - openssh-server 
+          - git 
+          - tar 
+          - gcc 
+          - gcc-c++ 
+          - make 
+          - cmake 
+          - alt-brepo-ruby33-devel 
+          - openssl-devel 
+          - zlib-devel
+        state: present
+    
+    - name: Add mockgui to mock
+      ansible.builtin.user:
+        name: mockgui
+        groups: mock
+        append: yes
+
+    - name: Clone project to the mockgui
+      ansible.builtin.git:
+        repo: https://dev.brepo.ru/brepo/mock-gui.git
+        dest: /home/mockgui/mock-gui
+        single_branch: yes
+        version: master
+      ignore_errors: true
+
+    - name: Add ccache to PATH
+      ansible.builtin.lineinfile:
+        path: /home/mockgui/.bashrc
+        insertbefore: '^export PATH'
+        line: 'export PATH=/usr/lib64/ccache:$PATH'
+    
+    - name: Change sources owner
+      ansible.builtin.file:
+        path: /home/mockgui/mock-gui
+        state: directory
+        recurse: yes
+        owner: mockgui
+        group: mockgui
+
+    - name: Install needed ruby gems
+      ansible.builtin.command: su - mockgui -c "cd /home/mockgui/mock-gui; /opt/brepo/ruby33/bin/bundle install"
+      args:
+        chdir: /home/mockgui/mock-gui
+      register: myout
+      changed_when: myout.rc == 0
+      failed_when: myout.rc != 0
+
+
+    - name: Create database
+      ansible.builtin.command: su - mockgui -c "cd /home/mockgui/mock-gui; /opt/brepo/ruby33/bin/bundle exec sequel -m db/migrations sqlite://db/workbase.sqlite3"
+      args:
+        chdir: /home/mockgui/mock-gui
+      register: myout
+      changed_when: myout.rc == 0
+      failed_when: myout.rc != 0
+
+    
+    - name: Copy systemd service file to server
+      ansible.builtin.copy:
+        remote_src: true
+        src: /home/mockgui/mock-gui/mockgui.service
+        dest: /etc/systemd/system
+        owner: root
+        group: root
+        mode: 0644
+

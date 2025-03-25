@@ -1,0 +1,29 @@
+<%= erb :header %>
+    <div class="container text-center">
+        <h2 class="pb-5">Список доступных конфигураций</h2>
+        <h3 class="pb-2 text-danger">Избранные</h3>
+        <div class="row gap-3">
+        <% @list_selected.each do |item| %>
+            <div class="col-3 bg-info rounded-4 p-2">
+                <a href="/bldcfginfo?info=<%= ERB::Util.url_encode(item[2]) %>" class="link-dark"><%= item[1] %></a>
+            </div>
+        <% end %>
+        </div>
+        <h3 class="p-3 text-danger">Локальные</h3>
+        <div class="row gap-3">
+        <% @list_local.each do |item| %>
+            <div class="col-3 bg-primary rounded-4 p-2">
+                <a href="/bldcfginfo?info=<%= ERB::Util.url_encode(item[2]) %>" class="link-light"><%= item[1] %></a>
+            </div>
+        <% end %>
+        </div>
+        <h3 class="p-3 text-danger">Глобальные</h3>
+        <div class="row gap-3">
+        <% @list_global.each do |item| %>
+            <div class="col-3 bg-success rounded-4 p-2">
+                <a href="/bldcfginfo?info=<%= ERB::Util.url_encode(item[2]) %>" class="link-light"><%= item[1] %></a>
+            </div>
+        <% end %>
+        </div>
+    </div>
+<%= erb :footer %>

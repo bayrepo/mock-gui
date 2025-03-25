@@ -1,0 +1,37 @@
+<%= erb :header %>
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                <h3 class="bg-secondary-subtle text-center border-bottom border-primary-subtle rounded-1 pb-1 mb-2">
+                    <a href="/prjedit/<%= ERB::Util.url_encode(@proj[:id]) %>"><%= @proj[:projname] %></a>
+                </h3>
+                <div class="pb-2">git репозиторий <a href="/prjgitf/<%= ERB::Util.url_encode(@proj[:id]) %>/<%= ERB::Util.url_encode(@repo[:id]) %>"><%= @repo[:reponame] %></a></div>
+                <div class="list-group">
+                    <a href="/buildinfof/<%= ERB::Util.url_encode(@build_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-file-earmark"></i><span class="ms-2">process.log</span></a>
+                    <% @logs_list.each do |item| %>
+                    <a href="/buildinfof/<%= ERB::Util.url_encode(@build_id) %>?file=<%= ERB::Util.url_encode(item) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-file-earmark"></i><span class="ms-2"><%= File.basename(item) %></span></a>
+                    <% end %>
+                </div>
+                <div class="pb-2 pt-2 fw-bold">Собранные пакеты</div>
+                <div class="list-group">
+                    <% @rpm_list.each do |item| %>
+                    <a href="/rpminfo/<%= item[:id] %>" class="list-group-item list-group-item-action list-group-item-info icon-link"><i
+                            class="bi bi-file"></i><span class="ms-2"><%= item[:fname] %></span></a>
+                    <% end %>
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="hstack gap-3">
+                    <div class="p-2">Содержимое отчета <%= @file_disp %> <a href="/buildinfofraw?file=<%= ERB::Util.url_encode(@file_disp_raw) %>"><i class="bi bi-filetype-raw"></i></a></div>
+                </div>
+                <div class="border rounded-3 p-2 overflow-x-scroll">
+                    <% @file_content.each do |item| %>
+                    <p class="p-0 m-0 fw-light"><%= item %></p>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+    </div>
+<%= erb :footer %>

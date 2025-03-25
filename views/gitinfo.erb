@@ -1,0 +1,203 @@
+<%= erb :header %>
+    <div class="container">
+        <div>
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation"><a class="nav-link active" role="tab" data-bs-toggle="tab" href="#tab-1">Общая информация</a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" role="tab" data-bs-toggle="tab" href="#tab-2">Список коммитов</a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" role="tab" data-bs-toggle="tab" href="#tab-3">Список тэгов</a></li>
+                <li class="nav-item" role="presentation"><a class="nav-link" role="tab" data-bs-toggle="tab" href="#tab-4">Клонировать</a></li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" role="tabpanel" id="tab-1">
+                    <div class="container">
+                        <div class="row align-items-start">
+                            <div class="col-10 p-5">
+                                <p style="font-weight: bold;"><%= @repo_data[:info][:reponame] %></p>
+                            </div>
+                        </div>
+                        <div class="row align-items-start">
+                            <div class="col-4" style="background: #d3e2ff;border-radius: 15px;padding-top: 20px;padding-bottom: 20px;">
+                                <p>
+                                <% if @repo_data[:info][:descr].nil? || @repo_data[:info][:descr] == "" %>
+                                    "Нет описания"
+                                <% else %>
+                                    <%= @repo_data[:info][:descr] %>
+                                <% end %>
+                                </p>
+                            </div>
+                            <div class="col-6">
+                                <p style="color: var(--bs-red);">Доступные ветки</p>
+                                <ul>
+                                    <% @repo_data[:branches].each do |br| %>
+                                    <li><a href="/repos/<%= ERB::Util.url_encode(@page_name) %>/<%= ERB::Util.url_encode(br) %>"><%= br %></a></li>
+                                    <% end %>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" role="tabpanel" id="tab-2">
+                    <div class="container">
+                        <div class="row align-items-start">
+                            <div class="col-10">
+                                <p style="font-weight: bold;"><%= @repo_data[:info][:reponame] %></p>
+                            </div>
+                        </div>
+                        <div class="row align-items-start">
+                            <div class="col-4" style="background: #d3e2ff;border-radius: 15px;padding-top: 20px;padding-bottom: 20px;">
+                                <p>
+                                <% if @repo_data[:info][:descr].nil? || @repo_data[:info][:descr] == "" %>
+                                    "Нет описания"
+                                <% else %>
+                                    <%= @repo_data[:info][:descr] %>
+                                <% end %>
+                                </p>
+                            </div>
+                            <div class="col-6">
+                                <p style="color: var(--bs-red);">Список 10 последних коммитов</p>
+                                <div class="container">
+                                    <% @repo_data[:commits].each do |commit| %>
+                                    <div class="row">
+                                        <div class="col col-12" style="background: #ffe76a;"><em><%= commit[:sha] %></em></div>
+                                        <div class="col col-8 offset-4">
+                                            <p><%= commit[:author][:name] %> (<%= commit[:time] %>): <%= commit[:message] %></p>
+                                        </div>
+                                    </div>
+                                    <% end %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" role="tabpanel" id="tab-3">
+                    <div class="container">
+                        <div class="row align-items-start">
+                            <div class="col-10">
+                                <p style="font-weight: bold;"><%= @repo_data[:info][:reponame] %></p>
+                            </div>
+                        </div>
+                        <div class="row align-items-start">
+                            <div class="col-4" style="background: #d3e2ff;border-radius: 15px;padding-top: 20px;padding-bottom: 20px;">
+                                <p>
+                                <% if @repo_data[:info][:descr].nil? || @repo_data[:info][:descr] == "" %>
+                                    "Нет описания"
+                                <% else %>
+                                    <%= @repo_data[:info][:descr] %>
+                                <% end %>
+                                </p>
+                            </div>
+                            <div class="col-6">
+                                <p style="color: var(--bs-red);">Тэги проекта</p>
+                                <ul>
+                                    <% @repo_data[:tags].each do |tags| %>
+                                    <li><%= tags %></li>
+                                    <% end %>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" role="tabpanel" id="tab-4">
+                    <div class="container">
+                        <div class="row align-items-start">
+                            <div class="col-10">
+                                <p style="font-weight: bold;"><%= @repo_data[:info][:reponame] %></p>
+                            </div>
+                        </div>
+                        <div class="row align-items-start">
+                            <div class="col-4" style="background: #d3e2ff;border-radius: 15px;padding-top: 20px;padding-bottom: 20px;">
+                                <p>
+                                <% if @repo_data[:info][:descr].nil? || @repo_data[:info][:descr] == "" %>
+                                    "Нет описания"
+                                <% else %>
+                                    <%= @repo_data[:info][:descr] %>
+                                <% end %>
+                                </p>
+                            </div>
+                            <div class="col-6">
+                                <p style="color: var(--bs-red);">Клонировать репозиторий</p>
+                                <ul>
+                                    <li>git clone <%= @user_name %>@<%= @ip_addr %>:<%= @path_to_repo %></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container" style="padding-top: 20px;">
+        <form method="post" action="/gitdelete">
+            <input class="form-control" type="hidden" id="reponame" name="reponame" value="repo">
+            <button class="btn btn-primary" type="submit" id="delete">Удалить</button>
+        </form>
+        <div id="winkeeper"></div>
+    </div>
+    <script src="/js/jquery-confirm.min.js"></script>
+    <script>
+        $("#delete").confirm({
+            title: 'Подтвердите удаление репозитория!',
+            content: '' +
+            '<div class="container">' +
+            '<form action="/gitdelete/<%= ERB::Util.url_encode(@page_name) %>" class="formName" method="post">' +
+            '<div class="text-danger mx-auto p-2">' +
+            '<label>Введите имя удаляемого репозитория</label>' +
+            '<input type="text" class="frmchk form-control" required name="reponamedup"/>' +
+            '<input type="hidden" class="frmchk form-control" id="repohid" name="repohid" value="<%= @page_name %>"/>' +
+            '</div>' +
+            '</form>' +
+            '</div>',
+            container: '#winkeeper',
+            theme: 'bootstrap',
+            buttons: {
+                formSubmit: {
+                    text: 'Удалить',
+                    titleClass: 'text-danger mx-auto p-2',
+                    btnClass: 'btn btn-danger',
+                    action: function () {
+                        var correct_name = this.$content.find("#repohid").val();
+                        var name = this.$content.find('.frmchk').val();
+                        if(!name){
+                            $.alert({
+                                title: 'Предупреждение!',
+                                content: 'Имя не может быть пустым',
+                                container: '#winkeeper',
+                                theme: 'bootstrap',
+                                buttons: {
+                                    ok: {
+                                        text: 'Хорошо',
+                                        btnClass: 'btn btn-danger',
+                                    }
+                                }
+                            });
+                            return false;
+                        }
+                        if (name != correct_name){
+                            $.alert({
+                                title: 'Предупреждение!',
+                                content: 'Имя задано неверно',
+                                container: '#winkeeper',
+                                theme: 'bootstrap',
+                                buttons: {
+                                    ok: {
+                                        text: 'Хорошо',
+                                        btnClass: 'btn btn-danger',
+                                    }
+                                }
+                            });
+                            return false;
+                        }
+                        this.$content.find('form').submit();
+                        return true;
+                    }
+                },
+                cancel:  {
+                    text: 'Отменить',
+                    btnClass: 'btn btn-primary',
+                    action: function () {
+                    //close
+                    }},
+            },
+        });
+    </script>
+<%= erb :footer %>

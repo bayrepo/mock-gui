@@ -1,0 +1,51 @@
+#!/bin/bash
+
+function usage(){
+    echo "bash install-key UserName Email TimeToExpireInSecondsFromCurrentTime PhassPhrase"
+    exit 0
+}
+
+if [ -z "$1" -o -z "$2" -o -z "$3" -o -z "$4" ];then
+    usage
+fi
+
+name="$1"
+email="$2"
+expdate="$3"
+phassphrase="$4"
+
+cat >gen-key-script <<EOF
+     %echo Generating a basic OpenPGP key
+     Key-Type: 1
+     Key-Length: 2048
+     Subkey-Type: 1
+     Subkey-Length: 2048
+     Name-Real: ${name}
+     Name-Email: ${email}
+     Expire-Date: seconds=${expdate}
+     Passphrase: ${phassphrase}
+     %commit
+     %echo done
+EOF
+
+mkdir -p ../keys/private
+mkdir -p ../keys/public
+chmod 700 ../keys/private
+GNUPGHOME="../keys/private" gpg --batch --generate-key gen-key-script
+rm -f gen-key-script
+
+key_path=$(realpath ../keys/private)
+pub_key_path=$(realpath ../keys/public)
+
+key_id=$(GNUPGHOME="../keys/private" gpg -k | grep -P "[0123456789abcdefABCDEF]{8,}" | xargs)
+GNUPGHOME="../keys/private" gpg --export --armor ${key_id} > "${pub_key_path}/mockgui-gpg-key"
+
+cat >~/.rpmmacros <<EOF
+%_signature gpg
+%_gpg_path ${key_path}
+%_gpg_name ${name} <${email}>
+%_gpgbin /usr/bin/gpg
+EOF
+
+echo "${phassphrase}" > ../keys/save
+

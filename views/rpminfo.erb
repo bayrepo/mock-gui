@@ -1,0 +1,123 @@
+<%= erb :header %>
+    <div class="container">
+        <div>
+            <span class="fs-3 fw-medium"><%=@rpm_data[:rpmname] %></span>
+            <% unless @build_id.nil? %>
+            <a href="/buildinfof/<%= ERB::Util.url_encode(@build_id) %>"><i class="bi bi-box"></i></a>
+            <% end %>
+            <a href="/gitpackages/<%= ERB::Util.url_encode(@repo_id) %>"><i class="bi bi-git"></i></a>
+        </div>
+        <div>
+            <% if @rpm_data[:sign] == 1 %>
+            Пакет подписан
+            <% else %>
+            Пакет не подписан
+            <% end %>
+        </div>
+        <div class="accordion" id="rpmInfo">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Информация о пакете
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#rpmInfo">
+                    <div class="accordion-body">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">Имя пакета</th>
+                                    <td><%= @pkg_info.name %></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Версия</th>
+                                    <td><%= @pkg_info.version %></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Архитектура</th>
+                                    <td><%= @pkg_info.arch %></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">Исходный пакет</th>
+                                    <% if @rpms_info.nil? %>
+                                    <td>Не найден</td>
+                                    <% else %>
+                                    <td><a href="/rpminfo/<%= ERB::Util.url_encode(@rpms_info[:id]) %>"><%= @rpms_info[:rpmname] %>.src</a></td>
+                                    <% end %>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        ChangeLog
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#rpmInfo">
+                    <div class="accordion-body">
+                        <div class="vstack gap-1">
+                            <% @pkg_info.changelog.each do |entry| %>
+                            <div class="p-1 text-warning-emphasis border">
+                                <p><%= entry.name %></p>
+                                <p><%= entry.text %></p>
+                            </div>
+                            <% end %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Список файлов
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#rpmInfo">
+                    <div class="accordion-body">
+                        <div class="vstack gap-0">
+                            <% @pkg_info.files.each do |file| %>
+                            <div class="p-0 fw-light text-secondary"><%= file.path %> (<%= file.size %>)</div>
+                            <% end %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseThree">
+                        Зависимости
+                    </button>
+                </h2>
+                <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#rpmInfo">
+                    <div class="accordion-body">
+                        <div class="vstack gap-0">
+                            <div class="p-2">Provides</div>
+                            <% @pkg_info.provides.each do |item| %>
+                            <div class="p-0 fw-light text-info-emphasis"><%= item.name %></div>
+                            <% end %>
+                            <div class="p-2">Requires</div>
+                            <% @pkg_info.requires.each do |item| %>
+                            <div class="p-0 fw-light text-info-emphasis"><%= item.name %></div>
+                            <% end %>
+                            <div class="p-2">Obsoletes</div>
+                            <% @pkg_info.obsoletes.each do |item| %>
+                            <div class="p-0 fw-light text-info-emphasis"><%= item.name %></div>
+                            <% end %>
+                            <div class="p-2">Conflists</div>
+                            <% @pkg_info.conflicts.each do |item| %>
+                            <div class="p-0 fw-light text-info-emphasis"><%= item.name %></div>
+                            <% end %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<%= erb :footer %>

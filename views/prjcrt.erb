@@ -1,0 +1,57 @@
+<%= erb :header %>
+    <script src="/js/jquery.dropdown.min.js"></script>
+    <% unless @error_data.nil? %>
+    <div class="container">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert"><span><%= @error_data.to_s.force_encoding("UTF-8") %></span><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button></div>
+    </div>
+    <% end %>
+    <div class="container">
+        <form action="/prjcreate" method="post">
+            <div class="mb-3">
+                <label for="projname" class="form-label">Название проекта (англиские буквы, _, .)</label>
+                <input type="text" class="form-control" id="projname" name="projname" value="<%= @old_name %>">
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Описание проекта</label>
+                <textarea class="form-control" id="description" name="description" rows="3"><%= @old_description %></textarea>
+            </div>
+            <div class="form-check form-switch">
+                <% if @old_nopublic.nil? %>
+                <input class="form-check-input" type="checkbox" role="switch" id="nopublic" name="nopublic" vlaue="nopublic">
+                <% else %>
+                <input class="form-check-input" type="checkbox" role="switch" id="nopublic" name="nopublic" vlaue="nopublic" checked>
+                <% end %>
+                <label class="form-check-label" for="nopublic">Не публиковать отладочные пакеты и исходные коды</label>
+            </div>
+            <div class="mb-3">
+                <label for="conflist" class="form-label">Выберите конфигурацию окружения сборки для проекта</label>
+                <div class="conflist">
+                    <select class="form-control" id="conflist" name="conflist">
+                    <% @local_list.each do |item| %>
+                        <% if !@old_list.nil? && @old_list == item[2] %>
+                            <option value="<%= item[2] %>" selected><%= item[1] %></option>
+                        <% else %>
+                            <option value="<%= item[2] %>"><%= item[1] %></option>
+                        <% end %>
+                    <% end %>
+                    <% @global_list.each do |item| %>
+                        <% if !@old_list.nil? && @old_list == item[2] %>
+                            <option value="<%= item[2] %>" selected><%= item[1] %></option>
+                        <% else %>
+                            <option value="<%= item[2] %>"><%= item[1] %></option>
+                        <% end %>
+                    <% end %>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 text-center">
+                <button type="submit" class="btn btn-primary">Создать</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        $('.conflist').dropdown({
+            searchNoData: '<li style="color:#ddd">Нет данных</li>',
+        });
+    </script>
+<%= erb :footer %>

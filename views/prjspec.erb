@@ -1,0 +1,67 @@
+<%= erb :header %>    
+    <script src="/js/jquery.dropdown.min.js"></script>
+    <div class="container">
+        <div class="modal fade" id="modalData" aria-hidden="true" aria-labelledby="modalDataLabel"
+            tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        Вы уверены, что хотите удалить привязку spec файла?
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" data-bs-dismiss="modal">Отмена</button>
+                        <button class="btn btn-danger" data-bs-dismiss="modal" id="btnDelete">Удалить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-4">
+                <h3 class="bg-secondary-subtle text-center border-bottom border-primary-subtle rounded-1 pb-1 mb-2">
+                    <a href="/prjedit/<%= ERB::Util.url_encode(@proj_id) %>"><%= @proj_name %></a>
+                </h3>
+                <div class="pb-2"><%= @proj_descr %></div>
+                <div class="pb-2">git репозиторий <%= @git_name %></div>
+            </div>
+            <div class="col-8">
+                <form action="/gitspec/<%= ERB::Util.url_encode(@proj_id) %>/<%= ERB::Util.url_encode(@git_id) %>" method="post" id="sndFrm">
+                    <div class="mb-3">
+                        <label for="projname" class="form-label">Установить имя spec файла для гит проекта</label>
+                        <input type="text" class="form-control" id="speccustom" name="speccustom" value="<%= @spec_file %>">
+                    </div>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="useCustom" name="useCustom" value="useCustom">
+                        <label class="form-check-label" for="speccustom">Использовать spec файл, заданный вручную</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Доступные spec файлы</label>
+                        <div class="filelist">
+                            <select class="form-control" id="filelst" name="filelst">
+                                <% @files_list.each do |item| %>
+                                <% if !@spec_file.nil? && item.include?(@spec_file) %>
+                                <option value="<%= item %>" selected><%= item %></option>
+                                <% else %>
+                                <option value="<%= item %>"><%= item %></option>
+                                <% end %>
+                                <% end %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3 text-center">
+                        <button type="submit" class="btn btn-primary" name="save" value="1">Сохранить</button>
+                        <button type="button" class="btn btn-danger" name="delete" value="2" id="btnDDD" data-bs-toggle="modal" data-bs-target="#modalData">Удалить установленный spec</button>
+                        <button type="submit" class="btn btn-secondary" name="cancel" value="3">Отмена</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('.filelist').dropdown({
+            searchNoData: '<li style="color:#ddd">Нет данных</li>',
+        });
+        $('#btnDelete').on("click", function(){
+            $("#sndFrm").trigger("submit");
+        });
+    </script>
+<%= erb :footer %>

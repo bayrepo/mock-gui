@@ -1,0 +1,63 @@
+<%= erb :header %>    
+    <div class="container">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Номер сборки</th>
+                    <th scope="col" class="text-center">Проект</th>
+                    <th scope="col" class="text-center">git репозиторий</th>
+                    <th scope="col" class="text-center">Дата сборки</th>
+                    <th scope="col" class="text-center">Число собранных пакетов</th>
+                    <th scope="col" class="text-center">Состояние</th>
+                    <th scope="col" class="text-center">Перейти к сборке</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% @builds_list.each do |item| %>
+                <% 
+                        case item[:state] 
+                        when 0
+                        st = "Идет сборка"
+                        cl = "text-bg-secondary"
+                        when 1
+                        st = "Ошибка сборки"
+                        cl = "text-bg-danger"
+                        when 2
+                        st = "Сборка успешно завершена"
+                        cl = "text-bg-success"
+                        else
+                        st = "Неизвестно"
+                        cl = "text-bg-light"
+                        end
+                %>
+                <tr>
+                    <td scope="row"><%= item[:buildid] %></td>
+                    <td class="text-center"><a href="/prjedit/<%= ERB::Util.url_encode(item[:projid]) %>"><%= item[:prjname] %></a></td>
+                    <td class="text-center"><a href="/prjgitf/<%= ERB::Util.url_encode(item[:projid]) %>/<%= ERB::Util.url_encode(item[:gitid]) %>"><%= item[:reponame] %></a></td>
+                    <td class="text-center"><%= item[:createat] %></td>
+                    <td class="text-center"><%= item[:pkgcnt] %></td>
+                    <td class="text-center <%= cl %>">
+                        <%= st %>
+                    </td>
+                    <td class="text-center"><a href="/buildinfof/<%= ERB::Util.url_encode(item[:buildid]) %>">Детальнее</a></td>
+                </tr>
+                <% end %>
+            </tbody>
+        </table>
+    </div>
+    <div class="container">
+        <nav aria-label="Навигация по доступным сборкам">
+            <ul class="pagination pagination-sm justify-content-center">
+                <% @max_pages.times.each do |item| %>
+                <% if (item+1) == @page %>
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link"><%= item+1 %></span>
+                </li>
+                <% else %>
+                <li class="page-item"><a class="page-link" href="/builds?p=<%= item+1 %>"><%= item+1 %></a></li>
+                <% end %>
+                <% end %>
+            </ul>
+        </nav>
+    </div>
+<%= erb :footer %>

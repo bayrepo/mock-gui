@@ -1,0 +1,56 @@
+<%= erb :header %>
+    <script src="/js/edit_area_full.js"></script>
+    <script language="javascript" type="text/javascript">
+        editAreaLoader.init({
+            id: "codedata",
+            syntax: "bash",
+            start_highlight: true,
+            language: "ru",
+            toolbar: "search, go_to_line, fullscreen, |, undo, redo, |, select_font,|, highlight, reset_highlight, word_wrap, |, syntax_selection"
+        });
+    </script>
+    <script src="/js/jquery.dropdown.min.js"></script>
+    <% unless @error_data.nil? %>
+    <div class="container">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert"><span><%= @error_data %></span><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button></div>
+    </div>
+    <% end %>
+    <div class="container">
+        <form action="/rcpcreate" method="post">
+            <div class="mb-3">
+                <label for="filepath" class="form-label">Имя рецепта (англиские буквы, _, .)</label>
+                <input type="text" class="form-control" id="filepath" name="filepath" value="<%= @old_filepath %>">
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Описание рецепта сборки</label>
+                <textarea class="form-control" id="description" name="description" rows="3"><%= @old_description %></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="codedata" class="form-label">Код</label>
+                <textarea class="form-control" id="codedata" name="codedata" rows="3"><%= @old_codedata %></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="gitlist" class="form-label">git проекты, использующие рецепт</label>
+                <div class="gitlist">
+                    <select class="form-control" id="gitlst" name="gitlst[]" multiple>
+                    <% @repo_data.each do |item| %>
+                        <% if !@old_gitlst.nil? && @old_gitlst.include?(item[:id].to_s) %>
+                            <option value="<%= item[:id] %>" selected><%= item[:reponame] %></option>
+                        <% else %>
+                            <option value="<%= item[:id] %>"><%= item[:reponame] %></option>
+                        <% end %>
+                    <% end %>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3 text-center">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        $('.gitlist').dropdown({
+            searchNoData: '<li style="color:#ddd">Нет данных</li>',
+        });
+    </script>
+<%= erb :footer %>

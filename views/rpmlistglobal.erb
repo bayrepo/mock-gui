@@ -1,0 +1,22 @@
+<%= erb :header %>    
+    <div class="container">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Имя git репозитория</th>
+                    <th scope="col" class="text-center">Число пакетов rpm пакетов</th>
+                    <th scope="col" class="text-center">Перейти к списку rpm пакетов</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% @gits_rpms_list.each do |item| %>
+                <tr>
+                    <th scope="row"><%= item[:reponame] %></th>
+                    <td class="text-center"><%= item[:packages] %></td>
+                    <td class="text-center"><a href="/gitpackages/<%= ERB::Util.url_encode(item[:id]) %>"><i class="bi bi-arrow-right-square"></i></a></td>
+                </tr>
+                <% end %>
+            </tbody>
+        </table>
+    </div>
+<%= erb :footer %>

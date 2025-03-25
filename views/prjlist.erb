@@ -1,0 +1,35 @@
+<%= erb :header %>
+    <div class="container py-4 py-xl-5">
+        <div class="row pb-5">
+            <div class="col-md-8 col-xl-6 text-center mx-auto">
+                <h2>Существующие проекты</h2>
+                <p class="w-lg-50">Страница управления проектами</p>
+                <div>
+                    <div class="px-3"><a href="/prjcreate"><svg xmlns="http://www.w3.org/2000/svg" width="1em"
+                                height="1em" fill="currentColor" viewBox="0 0 16 16"
+                                class="bi bi-plus-circle text-primary" style="font-size: 29px;">
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+                                <path
+                                    d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z">
+                                </path>
+                            </svg>&nbsp;Добавить проект</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="container text-center">
+            <div class="row gy-3">
+                <% @prj_list.each do |item| %>
+                <div class="col-4">
+                    <div class="card text-bg-success">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= item[:projname] %></h5>
+                            <p class="card-text"><%= item[:descr] %></p>
+                            <a href="/prjedit/<%= ERB::Util.url_encode(item[:id]) %>" class="card-link link-light">Перейти к проекту</a>
+                        </div>
+                    </div>
+                </div>
+                <% end %>
+            </div>
+        </div>
+    </div>
+<%= erb :footer %>
