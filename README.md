@@ -80,6 +80,7 @@ gpgkey=https://repo.brepo.ru/hestia/brepo_projects-gpg-key
 gpgcheck=1
 ```
 Далее:
+
 8. `dnf install epel-release`
 9. `dnf install mock rpmdevtools rpm-build ccache rpm-sign sqlite sqlite-devel alt-brepo-ruby33 openssh-server git tar gcc gcc-c++ make cmake alt-brepo-ruby33-devel openssl-devel zlib-devel`
 10. `usermod -a -G mock mockgui`
