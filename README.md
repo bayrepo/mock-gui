@@ -130,7 +130,7 @@ http://[ip]:8081
 
 ## Документация
 
-[OnLine](https://mockgui.brepo.ru)
+[OnLine](https://docs.brepo.ru/mockgui/)
 
 ### Сборка локальной докумнтации
 

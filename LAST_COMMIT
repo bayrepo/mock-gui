@@ -1,5 +1,6 @@
-commit c3d70f8dc5cf5e03a5dec60a0731516340e3ac2b (HEAD -> master, origin/master, origin/HEAD)
+commit 07c765637c82b0d81010ce3f52098244f1fd4abc (HEAD -> master, origin/master, origin/HEAD)
 Author: alexey
-Date:   Wed Mar 26 17:30:19 2025 +0300
+Date:   Thu Mar 27 23:16:59 2025 +0300
 
-    Fixed repo name
+    delete tar gz
+

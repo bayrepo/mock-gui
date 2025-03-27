@@ -3,6 +3,7 @@ site_url: https://docs.brepo.ru/mockgui/
 nav:
   - index.md
   - install.md
+  - update.md
   - run.md
   - docs.md
   - Инструкция пользователя: 

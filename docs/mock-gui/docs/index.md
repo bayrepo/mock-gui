@@ -34,3 +34,9 @@ MockGUI содержит линейный список git проектов, к�
 
 ![Главный экран MockGUI](img/mockgui_mainscreen.png)
 
+## Исходные коды
+
+* [github](https://github.com/bayrepo/mock-gui)
+* [developers git](https://dev.brepo.ru/brepo/mock-gui)
+  
+
