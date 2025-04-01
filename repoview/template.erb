@@ -18,6 +18,7 @@
             <pre>
 echo -e "[<%= repo_name %>]
 name=<%= repo_name %>
+skip_if_unavailable=True
 baseurl=<%= repo_url %>
 enabled=1
 gpgkey=<%= repo_url %><%= repo_name %>-gpg-key

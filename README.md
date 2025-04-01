@@ -1,6 +1,6 @@
 # MockGUI
 
-Обертка над mock для организации графического интерфейса сборки RPM паектов
+Обертка над mock для организации графического интерфейса сборки RPM пакетов
 
 ![Главный экран MockGUI](docs/mock-gui/docs/img/mockgui_mainscreen.png)
 
@@ -11,10 +11,11 @@
 MSVSphere 9
 Almalinux 9
 RockyLinux 9
+Centos 9 Stream
 
 Требования к системе:
 
-|        |          Минимальные требовнаия                              |
+|        |          Минимальные требования                              |
 |--------|--------------------------------------------------------------|
 | CPU    | 1 ядро                                                       |
 | Memory | Зависит от собираемых исходников, для небольших проектов 2Гб |
@@ -34,7 +35,7 @@ ansible-playbook mock-gui-install.yml --ask-become-pass
 перезагрузить систему
 systemctl enable mockgui
 systemctl start mockgui
-затйти под пользователем mockgui в каталог /home/mockgui/mock-gui/gen-scripts и выполнить команду:
+зайти под пользователем mockgui в каталог /home/mockgui/mock-gui/gen-scripts и выполнить команду:
 ./install-key UserName UserEmail 316224000 StrongSignPassword
 ```
 
@@ -52,7 +53,7 @@ ansible-playbook mock-gui-install.yml --ask-become-pass
 перезагрузить систему
 sudo systemctl enable mockgui
 sudo systemctl start mockgui
-затйти под пользователем mockgui в каталог /home/mockgui/mock-gui/gen-scripts и выполнить команду:
+зайти под пользователем mockgui в каталог /home/mockgui/mock-gui/gen-scripts и выполнить команду:
 ./install-key UserName UserEmail 316224000 StrongSignPassword
 ```
 
@@ -108,7 +109,7 @@ gpgcheck=1
 
 ## Запуск без сервиса
 
-Подготовка базы данных(деалется один раз):
+Подготовка базы данных(делается один раз):
 
 ```
 /opt/brepo/ruby33/bin/bundle exec sequel -m db/migrations sqlite://db/workbase.sqlite3
