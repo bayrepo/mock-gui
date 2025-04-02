@@ -1,6 +1,6 @@
-commit ad89cc5d590d4fdd021a1f39a57fc60db45d18e6 (HEAD -> master, origin/master, origin/HEAD)
+commit 3bb88d104ee519cef9e52fcc25de4b5a4e27274b (HEAD -> master, origin/master, origin/HEAD)
 Author: alexey
-Date:   Tue Apr 1 22:44:01 2025 +0300
+Date:   Wed Apr 2 15:31:20 2025 +0300
 
-    Added skip for repoview
+    Change license from GPL to MIT
 
