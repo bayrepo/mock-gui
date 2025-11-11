@@ -23,6 +23,14 @@
                 <% end %>
                 <label class="form-check-label" for="nopublic">Не публиковать отладочные пакеты и исходные коды</label>
             </div>
+            <div class="form-check form-switch">
+                <% if @old_tmpbld.nil? %>
+                <input class="form-check-input" type="checkbox" role="switch" id="tmpbld" name="tmpbld" vlaue="tmpbld">
+                <% else %>
+                <input class="form-check-input" type="checkbox" role="switch" id="tmpbld" name="tmpbld" vlaue="tmpbld" checked>
+                <% end %>
+                <label class="form-check-label" for="tmpbld">Добавлять к версии пакетов дату и ID сборки</label>
+            </div>
             <div class="mb-3">
                 <label for="conflist" class="form-label">Выберите конфигурацию окружения сборки для проекта</label>
                 <div class="conflist">

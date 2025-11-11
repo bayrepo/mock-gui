@@ -17,9 +17,7 @@ gem "inifile", "~> 3.0"
 
 gem "carrierwave", "~> 3.1"
 
-gem "data_mapper", "~> 1.2"
-
-gem "json", "~> 1.8"
+gem "json", "~> 2.5"
 
 gem "stringio", "~> 3.1"
 
@@ -38,3 +36,4 @@ gem "ffi", "~> 1.17"
 gem "ptools", "~> 1.5"
 
 gem "ostruct", "~> 0.6.1"
+

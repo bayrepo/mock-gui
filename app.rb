@@ -343,6 +343,7 @@ get "/prjcreate" do
   @local_list = result[:local]
   @old_nopublic = session[:prj_old_nopublic]
   @error_data = session[:prjcreate_error]
+  @old_tmpbld = session[:prj_old_tmpbld]
   session[:prjcreate_error] = nil
   erb :prjcrt
 end
@@ -352,12 +353,13 @@ post "/prjcreate" do
   session[:prj_old_description] = params["description"]
   session[:prj_old_list] = params["conflist"]
   session[:prj_old_nopublic] = params["nopublic"]
+  session[:prj_old_tmpbld] = params["tmpbld"]
   if params["projname"].nil? || params["description"].nil? || params["projname"].strip == "" || params["description"].strip == "" || params["conflist"].nil? || params["conflist"].strip == ""
     session[:rcpcreate_error] = "Имя проекта, описание и окружение сборки не должны быть пустыми"
     redirect "/prjcreate"
   else
     prj = ProjectsActions.new(cfg.get_projects_path, db)
-    result = prj.create_project(params["projname"], params["description"], params["conflist"], params["nopublic"])
+    result = prj.create_project(params["projname"], params["description"], params["conflist"], params["nopublic"], params["tmpbld"])
     if result != 0
       session[:prjcreate_error] = prj.error
       redirect "/prjcreate"
@@ -366,6 +368,7 @@ post "/prjcreate" do
       session[:prj_old_description] = nil
       session[:prj_old_list] = nil
       session[:prj_old_nopublic] = nil
+      session[:prj_old_tmpbld] = nil
       redirect "/projs"
     end
   end
@@ -395,6 +398,7 @@ get "/prjedit/:id" do
         @proj_descr = prj_info[:descr]
         @proj_id = prj_info[:id]
         @proj_public = prj_info[:public]
+        @proj_tmpbuild = prj_info[:tmpstpbuild]
         repo_lst = repo.getrepos
         proj_repo_list = prj.get_project_gits(prj_info[:id], repo)
         @repo_list = repo_lst.reject do |item|

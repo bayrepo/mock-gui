@@ -99,11 +99,13 @@ class ProjectsActions
           internal_repo_path = File.join(internal_path, PROJECTS_STRUCTURE[:REPO])
           internal_proj_info = internal_repo.get_project(item[:proj_id_repository])
           proj_repo = <<~PRJ_CFG
+            config_opts['dnf.conf'] += """
             [#{internal_proj_info[:projname]}-repository]
             name=Project repository #{internal_proj_info[:projname]}
             baseurl=file://#{internal_repo_path}
             enabled=1
             skip_if_unavailable=True
+            """
           PRJ_CFG
           linked_prj << proj_repo
         end
@@ -145,7 +147,7 @@ class ProjectsActions
     generate_linked_repos(id, proj_path, proj_name, prj_incl_path)
   end
 
-  def create_project(name, description, configuration, nopublic)
+  def create_project(name, description, configuration, nopublic, tmpbld)
     @error = nil
     ret_val = 0
     project_name = sanitize_rcptname(name)
@@ -163,7 +165,7 @@ class ProjectsActions
       end
       if File.exist?(configuration)
         generate_config(nil, configuration, fname, project_name)
-        @error = @db.proj_create(project_name, description, nopublic)
+        @error = @db.proj_create(project_name, description, nopublic, tmpbld)
         if @error.nil?
           created = true
         end
@@ -317,7 +319,10 @@ class ProjectsActions
         build_id = @db.last_id
         f.puts(build_id)
         f.flush
-        mock = MockManager.new(prepare_path, get_project_config(prj_id), counter_file, @db, build_path, repo_path, git_source, build_id, prep_script, spec_file, repo_lock, git_id)
+        proj_info = get_project(prj_id)
+        tmp_bld = false
+        tmp_bld = true if proj_info[:tmpstpbuild].to_i != 0
+        mock = MockManager.new(prepare_path, get_project_config(prj_id), counter_file, @db, build_path, repo_path, git_source, build_id, prep_script, spec_file, repo_lock, git_id, tmp_bld)
         bld_id = build_id
         @db.update_build_task_error_log(build_id, mock.get_build_process_log)
         mock.build_task

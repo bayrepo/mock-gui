@@ -1,0 +1,13 @@
+vendor
+repo/*
+db/*.sqlite3
+projects/*
+.ruby-lsp
+keys/private
+keys/public
+keys/save
+logs/actions.log
+
+!.gitignore
+!projects/empty
+!repo/empty

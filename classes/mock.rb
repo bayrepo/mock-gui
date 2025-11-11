@@ -4,6 +4,7 @@ require "fileutils"
 require "logger"
 require_relative "repomanage"
 require "digest"
+require "date"
 
 BUILD_STRUCTURE = {
   :SRC => "src",
@@ -13,9 +14,9 @@ BUILD_STRUCTURE = {
 }
 
 class MockManager
-  attr :path, :config, :error, :last_status, :last_pid, :prep_dir, :db, :resultpath, :process_log, :repo_path, :git_path, :build_id, :log, :recips, :spec, :repo_lock, :git_id
+  attr :path, :config, :error, :last_status, :last_pid, :prep_dir, :db, :resultpath, :process_log, :repo_path, :git_path, :build_id, :log, :recips, :spec, :repo_lock, :git_id, :tmp_bld
 
-  def initialize(path, config, cfg_counter_path, db, result_path, repo_path, git_path, build_id, recips, spec_file, repo_lock, git_id)
+  def initialize(path, config, cfg_counter_path, db, result_path, repo_path, git_path, build_id, recips, spec_file, repo_lock, git_id, tmp_bld)
     @error = nil
     unless File.exist? (path)
       Dir.mkdir(path)
@@ -32,6 +33,7 @@ class MockManager
     @spec = spec_file
     @repo_lock = repo_lock
     @git_id = git_id
+    @tmp_bld = tmp_bld
 
     File.open(cfg_counter_path, "r+") do |f|
       f.flock(File::LOCK_EX)
@@ -110,6 +112,31 @@ class MockManager
     @log.info("Подготовка SRCRPM")
     spec_file = File.join(@tmp_src, @spec)
     if File.exist?(spec_file)
+      if @tmp_bld
+        dt = DateTime.now
+        bld_id = @build_id.to_i
+        bld_str = "%010d" % bld_id
+        dt_str = dt.strftime("%Y%m%d_#{bld_str}")
+        cmd_args = %Q(/usr/bin/rpm -q --specfile #{spec_file} --queryformat "%{RELEASE}")
+        @log.debug(cmd_args)
+        cmd = Runner.new(cmd_args, @log)
+        cmd.run
+        if cmd.exit_status == 0 
+          res = "#{cmd.stdout}.#{dt_str}"
+          line_array = []
+          File.readlines(spec_file).each do |line|
+              if line =~ /^[\t ]*[Rr]elease:/
+                line = "Release: #{res}"
+              end
+              line_array << line
+          end
+          File.open(spec_file, "w") do |f|
+              line_array.each do |line|
+                f.puts(line)
+              end
+          end
+        end
+      end
       Dir.chdir(@tmp_src) do
         cmd_args = %Q(/usr/bin/mock -r "#{@config}" --buildsrpm --spec "#{spec_file}" --sources "#{@tmp_src}" --resultdir "#{File.join(@prep_dir, BUILD_STRUCTURE[:RESULT_SRPM])}" --isolation=simple --disable-plugin=ccache)
         @log.debug(cmd_args)

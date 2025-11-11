@@ -33,6 +33,13 @@
                         Запрещена публикация пакетов с исходными кодами
                     <% end %>
                 </div>
+                <div class="pb-2">
+                    <% if @proj_tmpbuild == 1 %>
+                        Сборка с добавлением даты и идентификатора
+                    <% else %>
+                        Обычная сборка пакетов
+                    <% end %>
+                </div>
                 <div class="list-group">
                     <a href="/prjcfg/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
                             class="bi bi-pen"></i><span class="ms-2">Редактировать

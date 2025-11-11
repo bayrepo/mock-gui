@@ -1,6 +1,6 @@
-commit 3bb88d104ee519cef9e52fcc25de4b5a4e27274b (HEAD -> master, origin/master, origin/HEAD)
-Author: alexey
-Date:   Wed Apr 2 15:31:20 2025 +0300
+commit d50ee1a7089d47c9ae99f913c7ea0647746dbaaa (HEAD -> master, origin/master, origin/HEAD)
+Author: Alexey Berezhok <a@bayrepo.ru>
+Date:   Sun Nov 9 22:50:21 2025 +0300
 
-    Change license from GPL to MIT
+    Fix include additional repos error
 

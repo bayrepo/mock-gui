@@ -146,7 +146,7 @@ class DBase
     Projects[id]
   end
 
-  def proj_create(proj_name, proj_descr, nopublic)
+  def proj_create(proj_name, proj_descr, nopublic, tmpbld)
     @error = nil
     data = Projects.where(projname: proj_name).first
     if data.nil?
@@ -154,7 +154,11 @@ class DBase
       unless nopublic.nil?
         public_proj = 0
       end
-      id = Projects.insert(projname: proj_name, descr: proj_descr, public: public_proj)
+      tmpbld_proj = 1
+      if tmpbld.nil?
+        tmpbld_proj = 0
+      end
+      id = Projects.insert(projname: proj_name, descr: proj_descr, public: public_proj, tmpstpbuild: tmpbld_proj)
       @last_id = id
     else
       @error = "Данный проект уже существует"

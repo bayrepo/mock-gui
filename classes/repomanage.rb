@@ -87,38 +87,74 @@ class RepoManager
   def repoview(url, repo_name, template_dir)
     rpm_list = get_rpms_list(@path)
     result = {}
+    nresult = {}
     rpm_list.each do |item|
       full_rpm_path = File.join(@path, item)
       info = @reader.get_rpm_info(full_rpm_path)
       dirName = File.dirname(item)
       fileName = File.basename(item)
       if result[dirName].nil?
-        result[dirName] = []
+        result[dirName] = {}
       end
+      nresult[dirName] = [] if nresult[dirName].nil?
       pkg_info = {}
       pkg_info[:fname] = fileName
       pkg_info[:aname] = item
       pkg_info[:stat] = File.stat(full_rpm_path).ctime
+      pkg_info[:pname] = "noname"
       if info[:error].nil?
         pkg_info[:chlog] = info[:pkginfo].changelog.first(5)
+        pkg_info[:pname] = info[:pkginfo].name
       else
         pkg_info[:chlog] = []
       end
-      result[dirName] << pkg_info
+      result[dirName][pkg_info[:pname]] = [] unless result[dirName].key?(pkg_info[:pname])
+      result[dirName][pkg_info[:pname]] << pkg_info
+      nresult[dirName] << pkg_info
     end
     repo_name = repo_name
     repo_url = url
     pkg_num = rpm_list.length
     repo_data = []
     data_keys = []
+    lresult = {}
     result.each_pair do |key, value|
-      result[key.to_s].sort_by! { |item| item[:fname] }
+      pak_keys = []
+      value.each_pair do |pkey, pvalue|
+        result[key][pkey].sort_by! { |item| item[:fname] }
+        pak_keys << pkey.to_s
+      end
+      pak_keys.sort!
+      lresult[key] = [] unless lresult.key?(key.to_s)
+      pak_keys.each do |item|
+        lresult[key] << [value[item], item]
+      end
+
       data_keys << key.to_s
     end
+    
     data_keys.sort!
     data_keys.each do |item|
-      repo_data << [result[item], item]
+      repo_data << [lresult[item], item]
     end
+
+    last_update_src = []
+    if nresult.key?("SRPMS")
+      last_update_src = nresult["SRPMS"].map do |record|
+        { fname: record[:fname], stat: record[:stat] }
+      end.sort_by! do |item|
+        [item[:stat], -item[:fname].downcase.ord]
+      end.map do |record| 
+        if record[:stat].nil?
+          ["нет даты", record[:fname]]
+        else
+          [record[:stat].strftime("%Y-%m-%d"), record[:fname]]
+        end
+      end
+    end
+
+    pp repo_data
+
     tpl_file = File.join(template_dir, "template.erb")
     template = File.read(tpl_file)
     renderer = ERB.new(template)
