@@ -71,6 +71,14 @@ class IniConfig
     end
   end
 
+    def get_build_lock_path()
+    unless @config["build"]["path"].nil?
+      @config["build"]["path"].to_s
+    else
+      "locks/build"
+    end
+  end
+
   def get_items_per_page()
     unless @config["pages"]["items_per_page"].nil?
       res = @config["pages"]["items_per_page"].to_i

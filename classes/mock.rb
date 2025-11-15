@@ -267,7 +267,7 @@ class MockManager
     end
   end
 
-  def build_task()
+  def build_task(build_lock)
     @error = false
     @db.before_fork
     spock = Spork.spork(:logger => log) do
@@ -275,33 +275,48 @@ class MockManager
       old_stdout = $stdout.dup
       $stdout = File.open(@process_log, "w")
       @log = Logger.new($stdout)
-      if @spec == ""
-        @error = true
-        @log.error("Не могу найти spec файл")
-      end
-      begin
-        prepare_structure if @error == false
-        prepare_src if @error == false
-        prepare_source if @error == false
-        prepare_src_rpm if @error == false
-        build_rpm if @error == false
-        save_logs
-        save_rpms if @error == false
-      rescue => e
-        @error = true
-        puts e
-      end
-      $stdout = old_stdout
-      @log.close
-      save_prg_log
-      clean_build
-      if @error
-        @db.update_build_task_status(@build_id, 1)
-      else
-        @db.update_build_task_status(@build_id, 2)
+
+      File.open(build_lock,"wb") do |global_lock|
+        global_lock.flock(File::LOCK_EX)
+        global_lock.rewind
+        build_info = @db.get_build_task_status(build_id)
+        unless build_info.nil?
+          if build_info[:result].to_i == 4 
+            return
+          end
+        end
+        @db.update_build_task_status(@build_id, 0)
+
+        if @spec == ""
+          @error = true
+          @log.error("Не могу найти spec файл")
+        end
+        begin
+          prepare_structure if @error == false
+          prepare_src if @error == false
+          prepare_source if @error == false
+          prepare_src_rpm if @error == false
+          build_rpm if @error == false
+          save_logs
+          save_rpms if @error == false
+        rescue => e
+          @error = true
+          puts e
+        end
+        $stdout = old_stdout
+        @log.close
+        save_prg_log
+        clean_build
+        if @error
+          @db.update_build_task_status(@build_id, 1)
+        else
+          @db.update_build_task_status(@build_id, 2)
+        end
+        global_lock.flock(File::LOCK_UN)
+
       end
     end
     @db.after_fork
-    spock
+    
   end
 end

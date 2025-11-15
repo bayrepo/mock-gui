@@ -142,9 +142,9 @@ class RepoManager
     if nresult.key?("SRPMS")
       last_update_src = nresult["SRPMS"].map do |record|
         { fname: record[:fname], stat: record[:stat] }
-      end.sort_by! do |item|
-        [item[:stat], -item[:fname].downcase.ord]
-      end.map do |record| 
+      end.sort_by do |item|
+        [item[:stat], item[:fname].downcase.ord]
+      end.reverse.map do |record| 
         if record[:stat].nil?
           ["нет даты", record[:fname]]
         else

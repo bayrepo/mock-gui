@@ -1,6 +1,7 @@
-commit d50ee1a7089d47c9ae99f913c7ea0647746dbaaa (HEAD -> master, origin/master, origin/HEAD)
+commit 89f92d265a5a028004fda5ded3ab870b632dfb2f
 Author: Alexey Berezhok <a@bayrepo.ru>
-Date:   Sun Nov 9 22:50:21 2025 +0300
+Date:   Sat Nov 15 22:54:56 2025 +0300
 
-    Fix include additional repos error
+    - Добавлена поддержка ожидания сборки
+    - Изменен порядок сортировки новых пакетов в repoview
 

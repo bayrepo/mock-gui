@@ -38,6 +38,7 @@ end
 
 cfg = IniConfig.new()
 db = DBase.new(cfg)
+db.cancel_hang_builds
 
 set :bind, "0.0.0.0"
 set :port, cfg.get_port
@@ -780,7 +781,7 @@ get "/gitbld/:id/:git_id" do
         @git_name = git_info[:reponame]
         @proj_id = params["id"]
 
-        @build_id = prj.build_projects_git(prj_info[:id], git_info[:id], cfg.get_counter_path)
+        @build_id = prj.build_projects_git(prj_info[:id], git_info[:id], cfg.get_counter_path, cfg.get_build_lock_path)
 
         if @build_id == 0
           print_error_page(503, "Ошибка создания или получения информации о сборке, возможно проблемы с файлом блокировки")
@@ -960,6 +961,18 @@ get "/buildinfof/:build_id" do
         print_error_page(503, "Для данной сборки уже не существует результатов")
       end
     end
+  end
+end
+
+get "/buildterm/:build_id" do
+  build_info = db.get_build_info(params["build_id"])
+  if build_info.nil?
+    print_error_page(503, "Сборки не сущестует")
+  else
+    if build_info[:result] == 3
+      db.update_build_task_status(params["build_id"], 4)
+    end
+    redirect back
   end
 end
 

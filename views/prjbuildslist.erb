@@ -26,11 +26,17 @@
                         when 2
                         st = "Сборка успешно завершена"
                         cl = "text-bg-success"
+                        when 3
+                        st = "Ожидает сборки"
+                        cl = "text-bg-secondary"
+                        when 4
+                        st = "Отменена"
+                        cl = "text-bg-light"
                         else
                         st = "Неизвестно"
                         cl = "text-bg-light"
                         end
-                %>
+                %>   end
                 <tr>
                     <td scope="row"><%= item[:buildid] %></td>
                     <td class="text-center"><a href="/prjedit/<%= ERB::Util.url_encode(item[:projid]) %>"><%= item[:prjname] %></a></td>
@@ -40,7 +46,15 @@
                     <td class="text-center <%= cl %>">
                         <%= st %>
                     </td>
-                    <td class="text-center"><a href="/buildinfof/<%= ERB::Util.url_encode(item[:buildid]) %>">Детальнее</a></td>
+                    <td class="text-center">
+                    <% if item[:state] == 3 %>
+                    <a href="/buildterm/<%= ERB::Util.url_encode(item[:buildid]) %>">Отменить</a>
+                    <% elsif item[:state] == 4 %>
+                    Нет информации
+                    <% else %>
+                    <a href="/buildinfof/<%= ERB::Util.url_encode(item[:buildid]) %>">Детальнее</a>
+                    <% end %>
+                    </td>
                 </tr>
                 <% end %>
             </tbody>

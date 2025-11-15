@@ -269,7 +269,7 @@ class ProjectsActions
     spec_file
   end
 
-  def build_projects_git(prj_id, git_id, counter_file)
+  def build_projects_git(prj_id, git_id, counter_file, build_lock)
     bld_id = 0
     build_ok = true
     proj_path = get_project_path(prj_id)
@@ -283,20 +283,16 @@ class ProjectsActions
       File.open(lockf_path, File::RDWR | File::CREAT) do |f|
         result = f.flock(File::LOCK_EX | File::LOCK_NB)
         if result == false
-          #Файл заблокирован считать id и вывести сведения о сборке
+          # Файл заблокирован считать id и вывести сведения о сборке
           build_ok = false
           build_id = f.gets
-          unless build_id.nil?
-            build_id = build_id.strip.to_i
-          end
-          if build_id > 0
+          build_id = build_id.strip.to_i unless build_id.nil?
+          if build_id.positive?
             build_info = @db.get_build_task_process_log(build_id)
-            unless build_info.nil?
-              bld_id = build_info[:id]
-            end
+            bld_id = build_info[:id] unless build_info.nil?
           end
         else
-          #Сборка завершилась, но каталог не подчистился
+          # Сборка завершилась, но каталог не подчистился
           FileUtils.rm_rf(prepare_path)
           f.flock(File::LOCK_UN)
           build_ok = true
@@ -306,17 +302,17 @@ class ProjectsActions
 
     #Верная ситуация
     if build_ok
+      build_path = File.join(proj_path, PROJECTS_STRUCTURE[:LOGS], git_name[:reponame])
       Dir.mkdir(prepare_path)
       lockf_path = File.join(prepare_path, "lock")
       File.open(lockf_path, File::RDWR | File::CREAT) do |f|
         f.flock(File::LOCK_EX)
         f.rewind
-        #Начинаем сборку
-        build_path = File.join(proj_path, PROJECTS_STRUCTURE[:LOGS], git_name[:reponame])
+        #Начинаем сборку      
+        @db.create_build_task(prj_id, git_id, build_path)
+        build_id = @db.last_id    
         repo_path = File.join(proj_path, PROJECTS_STRUCTURE[:REPO])
         git_source = File.join(proj_path, PROJECTS_STRUCTURE[:SRC], git_name[:reponame])
-        @db.create_build_task(prj_id, git_id, build_path)
-        build_id = @db.last_id
         f.puts(build_id)
         f.flush
         proj_info = get_project(prj_id)
@@ -325,7 +321,8 @@ class ProjectsActions
         mock = MockManager.new(prepare_path, get_project_config(prj_id), counter_file, @db, build_path, repo_path, git_source, build_id, prep_script, spec_file, repo_lock, git_id, tmp_bld)
         bld_id = build_id
         @db.update_build_task_error_log(build_id, mock.get_build_process_log)
-        mock.build_task
+        @db.update_build_task_status(build_id, 3)
+        mock.build_task(build_lock)
       end
     end
     bld_id

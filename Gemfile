@@ -36,4 +36,3 @@ gem "ffi", "~> 1.17"
 gem "ptools", "~> 1.5"
 
 gem "ostruct", "~> 0.6.1"
-

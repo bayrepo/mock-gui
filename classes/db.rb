@@ -249,6 +249,10 @@ class DBase
     BuildTask.where(id: build_id.to_i).update(result: status.to_i)
   end
 
+  def get_build_task_status(build_id)
+    BuildTask.where(id: build_id.to_i).first
+  end
+
   def update_build_task_error_log(build_id, path)
     BuildTask.where(id: build_id.to_i).update(errlogpath: path)
   end
@@ -383,5 +387,9 @@ class DBase
 
   def delete_git_by_id(id)
     Repos.where(id: id.to_i).delete
+  end
+
+  def cancel_hang_builds()
+    BuildTask.where(result: [0, 3]).update(result: 4)
   end
 end
