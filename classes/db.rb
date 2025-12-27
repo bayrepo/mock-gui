@@ -320,7 +320,7 @@ class DBase
   end
 
   def get_builds()
-    $DDB["select t1.id as buildid, t1.create_at as createat, t1.result as state, t2.reponame as reponame, t2.id as gitid, t3.id as projid, t3.projname as prjname, count(*) as pkgcnt from buildtask as t1 join repos as t2 on t1.repo_id = t2.id join projects as t3 on t1.proj_id = t3.id left join build_rpm as t4 on t4.build_id = t1.id group by buildid, createat, state, reponame, projid, prjname, gitid order by t1.id desc"].all
+    $DDB["select t1.id as buildid, t1.create_at as createat, t1.result as state, case when buildstart is null then 0 when buildstop is null then 0 else Cast((JulianDay(buildstop) - JulianDay(buildstart))*24*60*60 As Integer)  end as timeproc, t2.reponame as reponame, t2.id as gitid, t3.id as projid, t3.projname as prjname, count(*) as pkgcnt from buildtask as t1 join repos as t2 on t1.repo_id = t2.id join projects as t3 on t1.proj_id = t3.id left join build_rpm as t4 on t4.build_id = t1.id group by buildid, createat, state, reponame, projid, prjname, gitid order by t1.id desc"].all
   end
 
   def get_build_info(build_id)
@@ -341,11 +341,11 @@ class DBase
   end
 
   def get_builds_for_project(prj_id)
-    $DDB["select t1.id as buildid, t1.create_at as createat, t1.result as state, t2.reponame as reponame, t2.id as gitid, t3.id as projid, t3.projname as prjname, count(*) as pkgcnt from buildtask as t1 join repos as t2 on t1.repo_id = t2.id join projects as t3 on t1.proj_id = t3.id left join build_rpm as t4 on t4.build_id = t1.id where t1.proj_id = ? group by buildid, createat, state, reponame, projid, prjname, gitid order by t1.id desc", prj_id.to_i].all
+    $DDB["select t1.id as buildid, t1.create_at as createat, t1.result as state, case when buildstart is null then 0 when buildstop is null then 0 else Cast((JulianDay(buildstop) - JulianDay(buildstart))*24*60*60 As Integer)  end as timeproc,t2.reponame as reponame, t2.id as gitid, t3.id as projid, t3.projname as prjname, count(*) as pkgcnt from buildtask as t1 join repos as t2 on t1.repo_id = t2.id join projects as t3 on t1.proj_id = t3.id left join build_rpm as t4 on t4.build_id = t1.id where t1.proj_id = ? group by buildid, createat, state, reponame, projid, prjname, gitid order by t1.id desc", prj_id.to_i].all
   end
 
   def get_builds_for_project_git(prj_id, git_id)
-    $DDB["select t1.id as buildid, t1.create_at as createat, t1.result as state, t2.reponame as reponame, t2.id as gitid, t3.id as projid, t3.projname as prjname, count(*) as pkgcnt from buildtask as t1 join repos as t2 on t1.repo_id = t2.id join projects as t3 on t1.proj_id = t3.id left join build_rpm as t4 on t4.build_id = t1.id where t1.proj_id = ? and t1.repo_id = ? group by buildid, createat, state, reponame, projid, prjname, gitid order by t1.id desc", prj_id.to_i, git_id.to_i].all
+    $DDB["select t1.id as buildid, t1.create_at as createat, t1.result as state, case when buildstart is null then 0 when buildstop is null then 0 else Cast((JulianDay(buildstop) - JulianDay(buildstart))*24*60*60 As Integer)  end as timeproc ,t2.reponame as reponame, t2.id as gitid, t3.id as projid, t3.projname as prjname, count(*) as pkgcnt from buildtask as t1 join repos as t2 on t1.repo_id = t2.id join projects as t3 on t1.proj_id = t3.id left join build_rpm as t4 on t4.build_id = t1.id where t1.proj_id = ? and t1.repo_id = ? group by buildid, createat, state, reponame, projid, prjname, gitid order by t1.id desc", prj_id.to_i, git_id.to_i].all
   end
 
   def delete_git_from_project(prj_id, git_id)
@@ -354,15 +354,27 @@ class DBase
   end
 
   def delete_project(prj_id)
+    result = ProjectsProjects.where(proj_id_repository: prj_id.to_i)
+    count = 0
+    result.each do |item|
+      count = count + 1
+    end
+    return 1 if count > 0
     ReposProjects.where(proj_id: prj_id.to_i).delete
     ProjectsReposSpec.where(proj_id: prj_id.to_i).delete
     builds = BuildTask.where(proj_id: prj_id.to_i)
     builds.each do |item|
       rpms = BuildRpms.where(build_id: item[:id])
-      Rpms.where(id: rpms[:rpm_id]).delete
+      rpms.each do |rpm|
+        rpm_id_t = rpm[:rpm_id]
+        BuildRpms.where(build_id: item[:id], rpm_id: rpm_id_t).delete
+        Rpms.where(id: rpm_id_t).delete
+      end
     end
     BuildTask.where(proj_id: prj_id.to_i).delete
+    ProjectsProjects.where(proj_id: prj_id.to_i).delete
     Projects.where(id: prj_id.to_i).delete
+    0
   end
 
   def projects_with_current_as_link(prj_id)
@@ -391,5 +403,13 @@ class DBase
 
   def cancel_hang_builds()
     BuildTask.where(result: [0, 3]).update(result: 4)
+  end
+
+  def update_build_task_begin_time(build_id)
+    BuildTask.where(id: build_id.to_i).update(buildstart: DateTime.now)
+  end
+
+  def update_build_task_end_time(build_id)
+    BuildTask.where(id: build_id.to_i).update(buildstop: DateTime.now)
   end
 end

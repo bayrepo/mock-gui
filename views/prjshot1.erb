@@ -1,0 +1,42 @@
+<%= erb :header %>
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                <h3 class="bg-secondary-subtle text-center border-bottom border-primary-subtle rounded-1 pb-1 mb-2">
+                    <%= @proj_name %>
+                </h3>
+                <div class="pb-2"><%= @proj_descr %></div>
+                <div>
+                    <table class="table">
+                        <tbody>
+                            <% @snap_list.each do |item| %>
+                            <tr>
+                                <td><a href="/prjshot/<%= ERB::Util.url_encode(@proj_id) %>?snap=<%= ERB::Util.url_encode(item) %>"><%= item %></a></td>
+                                <td><a href="/prjsnap_delete/<%= ERB::Util.url_encode(@proj_id) %>?snap=<%= ERB::Util.url_encode(item) %>" class="icon-link"><i
+                            class="bi bi-trash3"></i></a></td>
+                                <td><a href="/prjsnap_restore/<%= ERB::Util.url_encode(@proj_id) %>?snap=<%= ERB::Util.url_encode(item) %>" class="icon-link"><i
+                            class="bi bi-capslock"></i></a></td>
+                            </tr>
+                            <% end %>
+                        </tbody>
+                    </table>                   
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="vstack gap-3">
+                    <div class="p-2">
+                        <a href="/prjsnap_add/<%= ERB::Util.url_encode(@proj_id) %>" class="icon-link"><i
+                            class="bi bi-plus-circle"></i><span class="ms-2">Создать снимок текущего репозитория</span></a>
+                    </div>
+                    <div class="p-2">
+                        <ul class="list-group">
+                            <% @rpms_list.each do |rpm| %>
+                            <li class="list-group-item"><%= rpm %></li>
+                            <% end %>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<%= erb :footer %>

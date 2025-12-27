@@ -54,3 +54,11 @@ end
 def get_rpms_list(directory)
   Dir.glob(File.join(directory, "**", "*.rpm")).reject { |f| File.directory?(f) || f =~ /repodata\// }.map { |f| f.delete_prefix(directory + "/") }
 end
+
+def get_dirs_in_mock_cache(dir_path)
+  Dir.glob(File.join(dir_path, "*")).select { |f| File.directory?(f) }.map{ |f| File.basename(f) }
+end
+
+def get_rpms_list_full(directory)
+  Dir.glob(File.join(directory, "**", "*.rpm")).reject { |f| File.directory?(f) || f =~ /repodata\// }
+end

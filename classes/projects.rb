@@ -12,6 +12,7 @@ PROJECTS_STRUCTURE = {
   :SRCPRP => "srcprp",
   :SIGNED => "signed",
   :SRC => "src",
+  :SNAP => "snapshot",
 }
 
 class ProjectsActions
@@ -69,6 +70,11 @@ class ProjectsActions
   def get_project_repo(id)
     proj_path = get_project_path(id)
     File.join(proj_path, PROJECTS_STRUCTURE[:REPO])
+  end
+
+  def get_project_snap(id, snap)
+    proj_path = get_project_path(id)
+    File.join(proj_path, PROJECTS_STRUCTURE[:SNAP], snap)
   end
 
   def get_project_path_git(id, gitname)
@@ -367,7 +373,9 @@ class ProjectsActions
       if linked.nil? || linked.length == 0
         proj_path = get_project_path(prj_id)
         FileUtils.rm_rf(proj_path, secure: true)
-        @db.delete_project(prj_id)
+        if @db.delete_project(prj_id) != 0 
+          @error = "На текущий проект ссылаются другие проекты. Удаление запрещено"
+        end
       else
         @error = "На текущий проект ссылаются другие проекты. Удаление запрещено"
       end
@@ -405,6 +413,12 @@ class ProjectsActions
               end
             end
             rpm_signed_list = get_rpms_list(sign_repo_path)
+            if rpm_signed_list.length > rpm_list.length 
+              rpms_for_delete = get_rpms_list_full(sign_repo_path)
+              rpms_for_delete.each do |item|
+                File.unlink(item)
+              end
+            end
             rpm_list = rpm_list.select do |item|
               sign_repo_path_rpm = File.join(sign_repo_path, item)
               unless File.exist?(sign_repo_path_rpm)
@@ -460,5 +474,68 @@ class ProjectsActions
   def get_sign_path(id)
     path = get_project_path(id)
     File.join(path, PROJECTS_STRUCTURE[:SIGNED])
+  end
+
+  def recreate_repo(id)
+    proj_path = get_project_path(id)
+    repo_path = File.join(proj_path, PROJECTS_STRUCTURE[:REPO])
+    repoman = RepoManager.new(repo_path)
+    repoman.create_repo
+  end
+
+  def get_snap_list(id)
+    proj_path = get_project_path(id)
+    snap_path = File.join(proj_path, PROJECTS_STRUCTURE[:SNAP])
+    
+    unless Dir.exist?(snap_path)
+      FileUtils.mkdir_p(snap_path)
+    end
+
+    snap_list = Dir.glob(File.join(snap_path, "*")).select { |path| File.directory?(path) }.map { |dir| File.basename(dir) }
+
+    return snap_list
+  end
+
+  def create_snapshot(id)
+    proj_path = get_project_path(id)
+    snap_path = File.join(proj_path, PROJECTS_STRUCTURE[:SNAP])
+    repo_path = File.join(proj_path, PROJECTS_STRUCTURE[:REPO])
+    
+    unless Dir.exist?(snap_path)
+      FileUtils.mkdir_p(snap_path)
+    end
+    
+    date_str = Time.now.strftime("%Y-%m-%d")
+    snapshot_dir = "#{date_str}_0"
+
+    while Dir.exist?(File.join(snap_path, snapshot_dir))
+      num = snapshot_dir.split("_").last.to_i
+      num += 1
+      snapshot_dir = "#{date_str}_#{num}"
+    end
+
+    snapshot_full_path = File.join(snap_path, snapshot_dir)
+    FileUtils.cp_r(repo_path, snapshot_full_path)
+  end
+
+  def delete_snapshot(id, snap)
+    proj_path = get_project_path(id)
+    snap_path = get_project_snap(id, snap)
+    snap_path_base = File.join(proj_path, PROJECTS_STRUCTURE[:SNAP])
+    unless snap_path == snap_path_base || "#{snap_path}/" == snap_path_base || snap_path == "#{snap_path_base}/"
+      if File.exist?(snap_path)
+        FileUtils.rm_rf(snap_path)
+      end
+    end
+  end
+
+  def restore_snapshot(id, snap)
+    repo_path = get_project_repo(id)
+    snap_path = get_project_snap(id, snap)
+    
+    if  Dir.exist?(repo_path) && Dir.exist?(snap_path)
+      Dir.glob(File.join(repo_path, '*')).each { |file| File.unlink(file) if File.file?(file) || FileUtils.rm_rf(file) }
+      FileUtils.cp_r(Dir.glob(File.join(snap_path, '*')), repo_path)
+    end
   end
 end

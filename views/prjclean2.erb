@@ -1,0 +1,18 @@
+<%= erb :header %>
+    <div class="container">
+        <h2 class="text-center">Удаление сатрых версий пакетов проекта <%= @proj_name %></h2>
+        <form action="/prjclean_step2/<%= ERB::Util.url_encode(@proj_id) %>" method="post">
+            <div class="form-check form-switch text-center pb-3">
+                <label for="inputvernum" class="form-label">Число версий</label>
+                <input type="text" id="inputvernum" name="inputvernum" class="form-control" aria-describedby="vernumHelpBlock">
+                <div id="vernumHelpBlock" class="form-text">
+                    Укажите число версий каждого пакета, которые должны остаться
+                </div>
+            </div>
+            <div class="mb-3 text-center">
+                <button type="submit" class="btn btn-primary" name="cancel" value="cancel">Отменить</button>
+                <button type="submit" class="btn btn-danger" name="delete" value="delete">Удалить</button>
+            </div>
+        </form>
+    </div>
+<%= erb :footer %>

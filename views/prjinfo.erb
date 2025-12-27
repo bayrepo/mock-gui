@@ -49,6 +49,8 @@
                     <a href="/prjrpm/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
                             class="bi bi-box"></i><span class="ms-2">Список всех
                         пакетов</span></a>
+                    <a href="/prjshot/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-camera-fill"></i><span class="ms-2">Управление снимками репозитория</span></a>
                     <a href="/prjbuilds/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
                             class="bi bi-list"></i><span class="ms-2">Список сборок проекта</span></a>
                     <a href="/prjsign/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
@@ -57,6 +59,8 @@
                             class="bi bi-file-earmark-diff"></i><span class="ms-2">Просмотр подписанного репозитория</span></a>
                     <a href="/prjremoteaddr/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
                             class="bi bi-pin-map-fill"></i><span class="ms-2">Установить адрес подписаннго репозитория</span></a>
+                    <a href="/prjclean/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-suitcase"></i><span class="ms-2">Удалить старые версии пакетов</span></a>
                     <a href="/prjdelete/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
                             class="bi bi-trash"></i><span class="ms-2">Удалить проект</span></a>
                 </div>

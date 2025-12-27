@@ -419,6 +419,177 @@ get "/prjedit/:id" do
   end
 end
 
+get "/prjclean/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    if prj_info.nil?
+      print_error_page(503, "Путь к проектам не существует")
+    else
+      @page_name = prj_info[:projname]
+      @proj_name = prj_info[:projname]
+      @proj_descr = prj_info[:descr]
+      @proj_id = prj_info[:id]
+      @proj_public = prj_info[:public]
+      @proj_tmpbuild = prj_info[:tmpstpbuild]
+      
+      erb :prjclean1
+    end
+  end
+end
+
+post "/prjclean/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    if prj_info.nil?
+      print_error_page(503, "Путь к проектам не существует")
+    else
+      if params["cancel"].nil? && params["delete"] == "delete" && !params["isclean"].nil?
+        redirect "/prjclean_step2/#{params["id"]}"
+      end
+      redirect "/prjedit/#{params["id"]}"
+    end
+  end
+end
+
+get "/prjclean_step2/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    @page_name = prj_info[:projname]
+    @proj_name = prj_info[:projname]
+    @proj_id = prj_info[:id]
+    filepath = ""
+    proj_path = prj.get_project_repo(params["id"])
+    f_path = File.join(proj_path, filepath)
+    if File.exist?(f_path)
+      erb :prjclean2
+    else
+      print_error_page(503, "Файл не существует")
+    end
+  end
+end
+
+post "/prjclean_step2/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    if prj_info.nil?
+      print_error_page(503, "Путь к проектам не существует")
+    else
+      if params["cancel"].nil? && params["delete"] == "delete" && params["inputvernum"].to_i > 0
+        numb = params["inputvernum"]
+        redirect "/prjclean_step3/#{params["id"]}?numb=#{numb}"
+      end
+      redirect "/prjedit/#{params["id"]}"
+    end
+  end
+end
+
+get "/prjclean_step3/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    if params["numb"].to_i > 0 
+      prj_info = prj.get_project(params["id"])
+      @page_name = prj_info[:projname]
+      @proj_name = prj_info[:projname]
+      @proj_descr = prj_info[:descr]
+      @proj_id = prj_info[:id]
+      filepath = ""
+      proj_path = prj.get_project_repo(params["id"])
+      f_path = File.join(proj_path, filepath)
+      rpm_list_stay = []
+      if File.exist?(f_path)
+        rpm_list = get_rpms_list_full(f_path)
+        repo = RepoManager.new(f_path)
+        rpm_result_list = {}
+        numb = params["numb"].to_i
+        rpm_list.each do |item|
+          f_name = File.basename item
+          rpm_info = repo.get_rpm_info(item)
+          if rpm_info[:error].nil?
+            p_name = "#{rpm_info[:pkginfo].name}"
+            if f_name =~ /\.src\.rpm$/
+              p_name = "#{rpm_info[:pkginfo].name}_src"
+            end
+            if rpm_result_list[p_name].nil? 
+              rpm_result_list[p_name] = [[rpm_info[:pkginfo], item, rpm_info[:pkginfo].version]]
+            else
+              rpm_result_list[p_name] << [rpm_info[:pkginfo], item, rpm_info[:pkginfo].version]
+              rpm_result_list[p_name].sort! do |a, b|
+                if a[2] < b[2]
+                  1
+                elsif a[2] > b[2]
+                  -1
+                else
+                  a[2] <=> b[2]
+                end
+              end
+              if rpm_result_list[p_name].length > numb
+                rpm_result_list[p_name].pop
+              end
+            end
+          else
+            rpm_list_stay << item
+          end
+          
+        end 
+        rpm_result_list.each_pair do |k, v|
+          v.each do |item|
+            rpm_list_stay << item[1]
+          end
+        end
+
+        delete_rpm_list = rpm_list - rpm_list_stay
+        @del_list = delete_rpm_list
+        erb :prjclean3
+      else
+        print_error_page(503, "Файл не существует")
+      end
+    else
+      print_error_page(503, "Число оставшихся пакетов должно быть более 0")
+    end
+  end
+end
+
+post "/prjclean_step3/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    if prj_info.nil?
+      print_error_page(503, "Путь к проектам не существует")
+    else
+      if params["cancel"].nil? && params["delete"] == "delete" && !params["prjrpmlst"].nil? && params["prjrpmlst"].length > 0
+        @page_name = prj_info[:projname]
+        @proj_name = prj_info[:projname]
+        @proj_descr = prj_info[:descr]
+        @proj_id = prj_info[:id]
+        params["prjrpmlst"].each do |item|
+          File.unlink(item)
+        end
+        prj.recreate_repo(@proj_id)
+        @rpm_list = params["prjrpmlst"]
+        erb :prjclean3_post
+      else
+        redirect "/prjedit/#{params["id"]}"
+      end
+    end
+  end
+end
+
 post "/prjagit/:id" do
   prj = ProjectsActions.new(cfg.get_projects_path, db)
   if prj.path.nil?
@@ -613,7 +784,6 @@ post "/prjcfg/:id" do
     if prj_info.nil?
       print_error_page(503, "Путь к проектам не существует")
     else
-      pp params
       unless params["cancel"].nil?
         redirect "/prjedit/#{params["id"]}"
       else
@@ -981,7 +1151,8 @@ get "/buildinfofraw" do
     print_error_page(503, "Файл не найден")
   else
     if !File.binary?(params["file"]) && params["file"].start_with?(File.join(Dir.pwd(), cfg.get_projects_path))
-      send_file params["file"]
+      f_name = File.basename(params["file"])
+      send_file(params["file"], :filename => f_name, :type => "application/octet-stream", :disposition => 'attachment')
     else
       print_error_page(503, "Файл не может быть скачан")
     end
@@ -1378,7 +1549,6 @@ end
 
 get "/prjsignview/:id/*" do
   data_path = params[:splat]
-  pp data_path
   if data_path.nil? || data_path.first.strip == ""
     data_path = "index.html"
   end
@@ -1406,6 +1576,209 @@ get "/prjsignview/:id/*" do
     end
   end
 end
+
+get "/prjshot/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    @page_name = prj_info[:projname]
+    @proj_name = prj_info[:projname]
+    @proj_descr = prj_info[:descr]
+    @proj_id = prj_info[:id]
+    filepath = ""
+    proj_path = prj.get_project_repo(params["id"])
+    f_path = File.join(proj_path, filepath)
+    @rpms_list = []
+    if File.exist?(f_path)
+      @snap_list = prj.get_snap_list(prj_info[:id])
+      unless params["snap"].nil?
+        snap_shot = prj.get_project_snap(@proj_id, params["snap"])
+        if File.exist?(snap_shot)
+          @rpms_list = get_rpms_list(snap_shot)
+        end
+      end
+      @rpms_list = [ "Снимок не выбран" ] if @rpms_list.length == 0
+      erb :prjshot1
+    else
+      print_error_page(503, "Репозиторий не существует")
+    end
+  end
+end
+
+get "/prjsnap_add/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    @page_name = prj_info[:projname]
+    @proj_name = prj_info[:projname]
+    @proj_descr = prj_info[:descr]
+    @proj_id = prj_info[:id]
+    filepath = ""
+    proj_path = prj.get_project_repo(params["id"])
+    f_path = File.join(proj_path, filepath)
+    if File.exist?(f_path)
+      erb :prjshot_add
+    else
+      print_error_page(503, "Репозиторий не существует")
+    end
+  end
+end
+
+post "/prjsnap_add/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    if prj_info.nil?
+      print_error_page(503, "Путь к проектам не существует")
+    else
+      if params["cancel"].nil? && params["create"] == "create" && !params["yes"].nil?
+        prj.create_snapshot(prj_info[:id])
+      end
+      redirect "/prjshot/#{params["id"]}"
+    end
+  end
+end
+
+get "/prjsnap_delete/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    @page_name = prj_info[:projname]
+    @proj_name = prj_info[:projname]
+    @proj_descr = prj_info[:descr]
+    @proj_id = prj_info[:id]
+    @snap_name = params["snap"]
+    if @snap_name.nil?
+      print_error_page(503, "Не указано имя снимка")
+    else
+      filepath = ""
+      proj_path = prj.get_project_snap(params["id"], params["snap"])
+      f_path = File.join(proj_path, filepath)
+      if File.exist?(f_path)
+        erb :prjshot_delete
+      else
+        print_error_page(503, "Снимок не существует")
+      end
+    end
+  end
+end
+
+post "/prjsnap_delete/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    @page_name = prj_info[:projname]
+    @proj_name = prj_info[:projname]
+    @proj_descr = prj_info[:descr]
+    @proj_id = prj_info[:id]
+    @snap_name = params["snap"]
+    if @snap_name.nil?
+      print_error_page(503, "Не указано имя снимка")
+    else
+      filepath = ""
+      proj_path = prj.get_project_snap(params["id"], params["snap"])
+      f_path = File.join(proj_path, filepath)
+      if File.exist?(f_path)
+        if params["cancel"].nil? && params["delete"] == "delete" && !params["yes"].nil?
+          prj.delete_snapshot(prj_info[:id], @snap_name)
+        end
+        redirect "/prjshot/#{params["id"]}"
+      else
+        print_error_page(503, "Снимок не существует")
+      end
+    end
+  end
+
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    if prj_info.nil?
+      print_error_page(503, "Путь к проектам не существует")
+    else
+      
+    end
+  end
+end
+
+get "/prjsnap_restore/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    @page_name = prj_info[:projname]
+    @proj_name = prj_info[:projname]
+    @proj_descr = prj_info[:descr]
+    @proj_id = prj_info[:id]
+    @snap_name = params["snap"]
+    if @snap_name.nil?
+      print_error_page(503, "Не указано имя снимка")
+    else
+      filepath = ""
+      proj_path = prj.get_project_snap(params["id"], params["snap"])
+      f_path = File.join(proj_path, filepath)
+      if File.exist?(f_path)
+        erb :prjsnap_restore
+      else
+        print_error_page(503, "Снимок не существует")
+      end
+    end
+  end
+end
+
+post "/prjsnap_restore/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    @page_name = prj_info[:projname]
+    @proj_name = prj_info[:projname]
+    @proj_descr = prj_info[:descr]
+    @proj_id = prj_info[:id]
+    @snap_name = params["snap"]
+    if @snap_name.nil?
+      print_error_page(503, "Не указано имя снимка")
+    else
+      filepath = ""
+      proj_path = prj.get_project_snap(params["id"], params["snap"])
+      f_path = File.join(proj_path, filepath)
+      if File.exist?(f_path)
+        if params["cancel"].nil? && params["restore"] == "restore" && !params["yes"].nil?
+          prj.restore_snapshot(prj_info[:id], @snap_name)
+        end
+        redirect "/prjshot/#{params["id"]}"
+      else
+        print_error_page(503, "Снимок не существует")
+      end
+    end
+  end
+
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    if prj_info.nil?
+      print_error_page(503, "Путь к проектам не существует")
+    else
+      
+    end
+  end
+end
+
 
 get "/sanitize" do
   #Подчистим гит проекты, которые есть в базе, но нет в файловой системе
@@ -1435,6 +1808,14 @@ get "/sanitize" do
   @deleted_items = deleted_items
   @page_name = "Очистка устаревших или потерянных записей базы данных"
   erb :sanitize
+end
+
+get "/buildsclean" do 
+  @page_name = "Очистка окружений сборок"
+  mock_cache_path = "/var/cache/mock/"
+  @list_cleaned = get_dirs_in_mock_cache(mock_cache_path)
+  MockManager.clean_mock
+  erb :buildsclean
 end
 
 not_found do

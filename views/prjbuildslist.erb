@@ -9,6 +9,7 @@
                     <th scope="col" class="text-center">git репозиторий</th>
                     <th scope="col" class="text-center">Дата сборки</th>
                     <th scope="col" class="text-center">Число собранных пакетов</th>
+                    <th scope="col" class="text-center">Время сборки</th>
                     <th scope="col" class="text-center">Состояние</th>
                     <th scope="col" class="text-center">Перейти к сборке</th>
                 </tr>
@@ -43,6 +44,7 @@
                     <td class="text-center"><a href="/prjgitf/<%= ERB::Util.url_encode(item[:projid]) %>/<%= ERB::Util.url_encode(item[:gitid]) %>"><%= item[:reponame] %></a></td>
                     <td class="text-center"><%= item[:createat] %></td>
                     <td class="text-center"><%= item[:pkgcnt] %></td>
+                    <td class="text-center"><%= item[:timeproc] %> сек</td>
                     <td class="text-center <%= cl %>">
                         <%= st %>
                     </td>

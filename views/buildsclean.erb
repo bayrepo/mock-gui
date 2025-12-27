@@ -1,0 +1,23 @@
+<%= erb :header %>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Подчистка окружений сборок произошла успешно</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">Ни один проект не был очищен, очищены только окружения сборок. Это значит, что следующая сборка будет длится дольше, но некоторые ошибки накопившиеся в кэше сборки будут устранены</p>
+                        <ul class="list-group">
+                            <% @list_cleaned.each do |item| %>
+                            <li class="list-group-item"><%= item %></li>
+                            <% end %>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4"></div>
+        </div>
+    </div>
+<%= erb :footer %>

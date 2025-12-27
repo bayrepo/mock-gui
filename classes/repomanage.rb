@@ -103,7 +103,8 @@ class RepoManager
       pkg_info[:stat] = File.stat(full_rpm_path).ctime
       pkg_info[:pname] = "noname"
       if info[:error].nil?
-        pkg_info[:chlog] = info[:pkginfo].changelog.first(5)
+        pkg_info[:chlog] = []
+        pkg_info[:chlog] << info[:pkginfo].changelog.first
         pkg_info[:pname] = info[:pkginfo].name
       else
         pkg_info[:chlog] = []
@@ -152,8 +153,6 @@ class RepoManager
         end
       end
     end
-
-    pp repo_data
 
     tpl_file = File.join(template_dir, "template.erb")
     template = File.read(tpl_file)

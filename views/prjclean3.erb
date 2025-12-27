@@ -1,0 +1,41 @@
+<%= erb :header %>
+<script src="/js/jquery.dropdown.min.js"></script>
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                <h3 class="bg-secondary-subtle text-center border-bottom border-primary-subtle rounded-1 pb-1 mb-2">
+                    <a href="/prjedit/<%= ERB::Util.url_encode(@proj_id) %>"><%= @proj_name %></a>
+                </h3>
+                <div class="pb-2"><%= @proj_descr %></div>
+            </div>
+            <div class="col-8">
+                <div class="vstack gap-3">
+                    <form action="/prjclean_step3/<%= ERB::Util.url_encode(@proj_id) %>" method="post">
+                        <div class="mb-3">
+                            <label for="prjrpmlst" class="form-label">Пакеты для удаления (могут быть удалены из списка)</label>
+                            <div class="prjrpmlist">
+                                <select class="form-control" id="prjrpmlst" name="prjrpmlst[]" multiple>
+                                    <% @del_list.each do |item| %>
+                                    <option value="<%= item %>" selected><%= File.basename(item) %></option>
+                                    <% end %>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="container">
+                            <div style="padding-top: 45px;"></div>
+                        </div>
+                        <div class="mb-3 text-center">
+                            <button type="submit" class="btn btn-primary" name="cancel" value="cancel">Отменить</button>
+                            <button type="submit" class="btn btn-danger" name="delete" value="delete">Удалить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $('.prjrpmlist').dropdown({
+            searchNoData: '<li style="color:#ddd">Нет данных</li>',
+        });
+    </script>
+<%= erb :footer %>

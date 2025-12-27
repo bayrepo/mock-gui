@@ -286,6 +286,7 @@ class MockManager
           end
         end
         @db.update_build_task_status(@build_id, 0)
+        @db.update_build_task_begin_time(@build_id)
 
         if @spec == ""
           @error = true
@@ -312,11 +313,18 @@ class MockManager
         else
           @db.update_build_task_status(@build_id, 2)
         end
+        @db.update_build_task_end_time(@build_id)
         global_lock.flock(File::LOCK_UN)
 
       end
     end
     @db.after_fork
     
+  end
+
+  def self.clean_mock
+    cmd_args = %Q(/usr/bin/mock --scrub-all-chroots)
+    cmd = Runner.new(cmd_args)
+    cmd.run_clean
   end
 end

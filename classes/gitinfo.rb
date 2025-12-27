@@ -72,6 +72,24 @@ class GitRepo
     repos_data
   end
 
+  def git_walker(repo, tree, dir_name, result)
+    tree.each_tree do |entry|
+        new_tree = repo.lookup(entry[:oid])
+        result = git_walker(repo, new_tree, "#{dir_name}/#{entry[:name]}", result)
+    end
+    tree.each_blob { |entry| result << "#{dir_name}/#{entry[:name]}" }
+    result
+  end
+    
+
+  def get_git_tree(repo, ref, result)
+
+    tree = ref.target.tree
+
+    result = git_walker(repo, tree, "", result)
+
+  end
+
   def repo_info(reponame, branch = nil)
     info = {}
     result = ""
@@ -97,6 +115,7 @@ class GitRepo
           info[:commits] = []
           info[:branches] = []
           info[:tags] = []
+          info[:files] = []
         else
           ref = repo.head
           unless branch.nil?
@@ -104,6 +123,7 @@ class GitRepo
             ref = repo.references[ref_name]
           end
           commits = []
+          files = []
           unless ref.nil?
             walker = Rugged::Walker.new(repo)
             walker.sorting(Rugged::SORT_DATE)
@@ -111,10 +131,15 @@ class GitRepo
             commits = walker.map do |commit|
               { :message => commit.message, :author => commit.author, :time => commit.time, :sha => commit.oid }
             end.first(10)
+            unless ref.target.nil? && ref.target.tree.nil?
+              files = get_git_tree(repo, ref, files)
+            end
           end
+
           info[:commits] = commits
           info[:branches] = repo.branches.each_name(:local).sort
           info[:tags] = repo.tags.map { |tag| tag.name }
+          info[:files] = files
         end
       else
         @error = result

@@ -1,0 +1,22 @@
+<%= erb :header %>
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                <h3 class="bg-secondary-subtle text-center border-bottom border-primary-subtle rounded-1 pb-1 mb-2">
+                    <a href="/prjedit/<%= ERB::Util.url_encode(@proj_id) %>"><%= @proj_name %></a>
+                </h3>
+                <div class="pb-2"><%= @proj_descr %></div>
+            </div>
+            <div class="col-8">
+                <div class="vstack gap-3">
+                    <ul class="list-group">
+                        <li class="list-group-item active" aria-current="true">Список удаленных пакетов (не забудьте пересоздать repoview)</li>
+                        <% @rpm_list.each do |item| %>
+                        <li class="list-group-item"><%= item %></li>
+                        <% end %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+<%= erb :footer %>
