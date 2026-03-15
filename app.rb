@@ -434,7 +434,7 @@ get "/prjclean/:id" do
       @proj_id = prj_info[:id]
       @proj_public = prj_info[:public]
       @proj_tmpbuild = prj_info[:tmpstpbuild]
-      
+
       erb :prjclean1
     end
   end
@@ -500,7 +500,7 @@ get "/prjclean_step3/:id" do
   if prj.path.nil?
     print_error_page(503, "Путь к проектам не существует")
   else
-    if params["numb"].to_i > 0 
+    if params["numb"].to_i > 0
       prj_info = prj.get_project(params["id"])
       @page_name = prj_info[:projname]
       @proj_name = prj_info[:projname]
@@ -523,7 +523,7 @@ get "/prjclean_step3/:id" do
             if f_name =~ /\.src\.rpm$/
               p_name = "#{rpm_info[:pkginfo].name}_src"
             end
-            if rpm_result_list[p_name].nil? 
+            if rpm_result_list[p_name].nil?
               rpm_result_list[p_name] = [[rpm_info[:pkginfo], item, rpm_info[:pkginfo].version]]
             else
               rpm_result_list[p_name] << [rpm_info[:pkginfo], item, rpm_info[:pkginfo].version]
@@ -543,8 +543,8 @@ get "/prjclean_step3/:id" do
           else
             rpm_list_stay << item
           end
-          
-        end 
+
+        end
         rpm_result_list.each_pair do |k, v|
           v.each do |item|
             rpm_list_stay << item[1]
@@ -1231,10 +1231,15 @@ get "/prjrpm/:id" do
               @file_content << "Версия пакета: #{rpm_info.version}"
               @file_content << ""
               @file_content << "Changelog:"
-              rpm_info.changelog.first(10).each do |entry|
-                @file_content << "#{entry.time} #{entry.name}"
-                @file_content << "#{entry.text}"
-                @file_content << "---------------"
+              begin
+                rpm_info.changelog.first(10).each do |entry|
+                  @file_content << "#{entry.time} #{entry.name}"
+                  @file_content << "#{entry.text}"
+                  @file_content << "---------------"
+                end
+              rescue
+                # Если есть ошибка с undefined local variable or method, пропускаем changelog
+                @file_content << "Changelog недоступен"
               end
               @file_content << "---------------"
               @file_content << "Файлы:"
@@ -1707,7 +1712,7 @@ post "/prjsnap_delete/:id" do
     if prj_info.nil?
       print_error_page(503, "Путь к проектам не существует")
     else
-      
+
     end
   end
 end
@@ -1774,7 +1779,7 @@ post "/prjsnap_restore/:id" do
     if prj_info.nil?
       print_error_page(503, "Путь к проектам не существует")
     else
-      
+
     end
   end
 end
@@ -1810,7 +1815,7 @@ get "/sanitize" do
   erb :sanitize
 end
 
-get "/buildsclean" do 
+get "/buildsclean" do
   @page_name = "Очистка окружений сборок"
   mock_cache_path = "/var/cache/mock/"
   @list_cleaned = get_dirs_in_mock_cache(mock_cache_path)

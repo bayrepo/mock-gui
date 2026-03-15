@@ -104,7 +104,11 @@ class RepoManager
       pkg_info[:pname] = "noname"
       if info[:error].nil?
         pkg_info[:chlog] = []
-        pkg_info[:chlog] << info[:pkginfo].changelog.first
+        begin
+          pkg_info[:chlog] << info[:pkginfo].changelog.first
+        rescue
+          pkg_info[:chlog] << "Change log error"
+        end
         pkg_info[:pname] = info[:pkginfo].name
       else
         pkg_info[:chlog] = []
@@ -133,7 +137,7 @@ class RepoManager
 
       data_keys << key.to_s
     end
-    
+
     data_keys.sort!
     data_keys.each do |item|
       repo_data << [lresult[item], item]
@@ -145,7 +149,7 @@ class RepoManager
         { fname: record[:fname], stat: record[:stat] }
       end.sort_by do |item|
         [item[:stat], item[:fname].downcase.ord]
-      end.reverse.map do |record| 
+      end.reverse.map do |record|
         if record[:stat].nil?
           ["нет даты", record[:fname]]
         else

@@ -1,7 +1,6 @@
-commit 89f92d265a5a028004fda5ded3ab870b632dfb2f
-Author: Alexey Berezhok <a@bayrepo.ru>
-Date:   Sat Nov 15 22:54:56 2025 +0300
+commit 46b2bc0d8ef8157f4befa920eaa754a275ad721d (HEAD -> master, origin/master, origin/HEAD)
+Author: alexey <a@bayrepo.ru>
+Date:   Sun Mar 15 23:38:58 2026 +0300
 
-    - Добавлена поддержка ожидания сборки
-    - Изменен порядок сортировки новых пакетов в repoview
+    Fixed error on incorrect change log
 
