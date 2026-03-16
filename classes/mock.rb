@@ -117,12 +117,20 @@ class MockManager
         bld_id = @build_id.to_i
         bld_str = "%010d" % bld_id
         dt_str = dt.strftime("%Y%m%d_#{bld_str}")
-        cmd_args = %Q(/usr/bin/rpm -q --specfile #{spec_file} --queryformat "%{RELEASE}")
+        cmd_args = %Q(/usr/bin/rpm -q --specfile #{spec_file} --queryformat "%{RELEASE}\n" 2>/dev/null)
         @log.debug(cmd_args)
         cmd = Runner.new(cmd_args, @log)
         cmd.run
-        if cmd.exit_status == 0 
+        if cmd.exit_status == 0
           res = "#{cmd.stdout}.#{dt_str}"
+          versions = "#{cmd.stdout}".split("\n")
+          if versions.length()>0
+            res = versions[0].strip
+            res = "#{res}.#{dt_str}"
+          else
+            res = cmd.stdout.strip
+            res = "#{res}.#{dt_str}"
+          end
           line_array = []
           File.readlines(spec_file).each do |line|
               if line =~ /^[\t ]*[Rr]elease:/
@@ -281,7 +289,7 @@ class MockManager
         global_lock.rewind
         build_info = @db.get_build_task_status(build_id)
         unless build_info.nil?
-          if build_info[:result].to_i == 4 
+          if build_info[:result].to_i == 4
             return
           end
         end
@@ -319,7 +327,7 @@ class MockManager
       end
     end
     @db.after_fork
-    
+
   end
 
   def self.clean_mock

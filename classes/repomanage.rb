@@ -107,7 +107,6 @@ class RepoManager
         begin
           pkg_info[:chlog] << info[:pkginfo].changelog.first
         rescue
-          pkg_info[:chlog] << "Change log error"
         end
         pkg_info[:pname] = info[:pkginfo].name
       else
