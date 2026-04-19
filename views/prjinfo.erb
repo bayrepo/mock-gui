@@ -46,6 +46,10 @@
                         конфигурацию сборки</span></a>
                     <a href="/prjaddrepo/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
                             class="bi bi-archive"></i><span class="ms-2">Добавить внутренний репозиторий из другого проекта</span></a>
+                    <a href="/prjaddrpm/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-bag-dash"></i><span class="ms-2">Добавить бинарный пакет в репозиторий</span></a>
+                    <a href="/prjuplrpm/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
+                            class="bi bi-folder-symlink"></i><span class="ms-2">Посмотреть список загруженных rpm пакетов</span></a>
                     <a href="/prjrpm/<%= ERB::Util.url_encode(@proj_id) %>" class="list-group-item list-group-item-action list-group-item-dark icon-link"><i
                             class="bi bi-box"></i><span class="ms-2">Список всех
                         пакетов</span></a>
@@ -88,9 +92,9 @@
                         <% @proj_repo.each do |item| %>
                         <div class="row justify-content-between border-bottom border-light-subtle m-2">
                             <% unless item[:is_repo_synced] %>
-                            <div class="col-8">
+                            <div class="col-5">
                             <% else %>
-                            <div class="col-7">
+                            <div class="col-6">
                             <% end %>
                                 <a href="/prjgitf/<%= ERB::Util.url_encode(@proj_id) %>/<%= ERB::Util.url_encode(item[:id]) %>" class="p-2"><%= item[:reponame] %></a>
                             </div>
@@ -110,6 +114,9 @@
                             </div>
                             <div class="col-1">
                                 <a href="/prjgitbld/<%= ERB::Util.url_encode(@proj_id) %>/<%= ERB::Util.url_encode(item[:id]) %>" class="p-2"><i class="bi bi-bricks"></i></a>
+                            </div>
+                            <div class="col-1">
+                                <a href="/prjcstmbld/<%= ERB::Util.url_encode(@proj_id) %>/<%= ERB::Util.url_encode(item[:id]) %>" class="p-2"><i class="bi bi-hammer"></i></a>
                             </div>
                         </div>
                         <% end %>

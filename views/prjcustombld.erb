@@ -1,0 +1,138 @@
+<%= erb :header %>    
+    <script src="/js/edit_area_full.js"></script>
+    <script language="javascript" type="text/javascript">
+        editAreaLoader.init({
+            id: "codedata",
+            syntax: "bash",
+            start_highlight: true,
+            language: "ru",
+            toolbar: "search, go_to_line, fullscreen, |, undo, redo, |, select_font,|, highlight, reset_highlight, word_wrap, |, syntax_selection"
+        });
+    </script>
+    <% unless @error_data.nil? %>
+    <div class="container">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert"><span><%= @error_data %></span><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button></div>
+    </div>
+    <% end %>
+    <div class="container">
+        <div class="row">
+            <div class="col-4">
+                <h3 class="bg-secondary-subtle text-center border-bottom border-primary-subtle rounded-1 pb-1 mb-2">
+                    <a href="/prjedit/<%= ERB::Util.url_encode(@proj_id) %>"><%= @proj_name %></a>
+                </h3>
+                <div class="pb-2"><%= @proj_descr %></div>
+                <div class="pb-2">git репозиторий <%= @git_name %></div>
+            </div>
+            <div class="col-8">
+                <form action="/prjcstmbld/<%= ERB::Util.url_encode(@proj_id) %>/<%= ERB::Util.url_encode(@git_id) %>" method="post" id="sndFrm">
+                    <div class="mb-3">
+                        <label for="filepath" class="form-label">Имя скрипта сценария (англиские буквы, _, .), не должен совпадать с каким нибудь файлом из проекта</label>
+                        <input type="text" class="form-control" id="filepath" name="filepath" value="<%= @old_filepath %>">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Описание скрипта сборки</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"><%= @old_descr %></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="codedata" class="form-label">Код скрипта сборки. Будьте внимательны, данный скрипт выолняется на сборочной машине,
+                            все его изменения затронут хостовую систему, поэтому желательно как можно быстрее выполнение скрипта перенесите в Docker.
+                            Так же после выполенения скрипта удалите и остановите все запущенные контейнеры, т.к скрипт сам должен контролировать это.
+                            Так же убедитесь, что все log файлы сборки и собранные пакеты положены в каталог в параметре $1, передаваемый скрипту.
+                            Скрипт выполняется из корня git проекта.
+                            Первый параметр передаваемый в скрипт содержит каталог, куда еобходимо ложить rpm пакеты и log файлы.
+                            У log файлов обязательно должно быть расширение .log, чтоб они попали в отчет сборки.
+                        </label>
+                        <p>
+                            Шаблон скрипта:
+                            <pre>
+#!/bin/bash
+RESULT="$1"
+if [ -z "$RESULT" ]; then
+	exit 1
+fi
+build command
+cp -r [dir_with_results]/*.* "${RESULT}/"
+                            </pre>
+                        </p>
+                        <textarea class="form-control" id="codedata" name="codedata" rows="15"><%= @old_content %></textarea>
+                    </div>
+                    <div class="mb-3 text-center">
+                        <button type="submit" class="btn btn-primary" name="save" value="1">Сохранить</button>
+                        <button type="submit" class="btn btn-secondary" name="cancel" value="3">Отмена</button>
+                        <% unless @old_filepath.nil? %>
+                        <button type="submit" class="btn btn-danger" id="delete" name="delete" value="2">Удалить</button>
+                        <% end %>
+                        <div id="winkeeper"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="/js/jquery-confirm.min.js"></script>
+    <script>
+        $("#delete").confirm({
+            title: 'Подтвердите удаление скрипта, после удаления сборка будет происходить стандартно, через mock!',
+            content: '' +
+            '<div class="container">' +
+            '<form action="/prjcstmblddel/<%= ERB::Util.url_encode(@proj_id) %>/<%= ERB::Util.url_encode(@git_id) %>" class="formName" method="post">' +
+            '<div class="text-danger mx-auto p-2">' +
+            '<label>Введите название удаляемого скрипта</label>' +
+            '<input type="text" class="frmchk form-control" required name="rcpnamedup"/>' +
+            '<input type="hidden" class="frmchk form-control" id="rcphid" name="rcphid" value="<%= @old_filepath %>"/>' +
+            '</div>' +
+            '</form>' +
+            '</div>',
+            container: '#winkeeper',
+            theme: 'bootstrap',
+            buttons: {
+                formSubmit: {
+                    text: 'Удалить',
+                    titleClass: 'text-danger mx-auto p-2',
+                    btnClass: 'btn btn-danger',
+                    action: function () {
+                        var correct_name = this.$content.find("#rcphid").val();
+                        var name = this.$content.find('.frmchk').val();
+                        if(!name){
+                            $.alert({
+                                title: 'Предупреждение!',
+                                content: 'Название не может быть пустым',
+                                container: '#winkeeper',
+                                theme: 'bootstrap',
+                                buttons: {
+                                    ok: {
+                                        text: 'Хорошо',
+                                        btnClass: 'btn btn-danger',
+                                    }
+                                }
+                            });
+                            return false;
+                        }
+                        if (name != correct_name){
+                            $.alert({
+                                title: 'Предупреждение!',
+                                content: 'Название задано неверно',
+                                container: '#winkeeper',
+                                theme: 'bootstrap',
+                                buttons: {
+                                    ok: {
+                                        text: 'Хорошо',
+                                        btnClass: 'btn btn-danger',
+                                    }
+                                }
+                            });
+                            return false;
+                        }
+                        this.$content.find('form').submit();
+                        return true;
+                    }
+                },
+                cancel:  {
+                    text: 'Отменить',
+                    btnClass: 'btn btn-primary',
+                    action: function () {
+                    //close
+                    }},
+            },
+        });
+    </script>
+<%= erb :footer %>

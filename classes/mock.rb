@@ -16,7 +16,9 @@ BUILD_STRUCTURE = {
 class MockManager
   attr :path, :config, :error, :last_status, :last_pid, :prep_dir, :db, :resultpath, :process_log, :repo_path, :git_path, :build_id, :log, :recips, :spec, :repo_lock, :git_id, :tmp_bld
 
-  def initialize(path, config, cfg_counter_path, db, result_path, repo_path, git_path, build_id, recips, spec_file, repo_lock, git_id, tmp_bld)
+  def initialize(path, config, cfg_counter_path, db, result_path, 
+    repo_path, git_path, build_id, recips, spec_file, repo_lock, 
+    git_id, tmp_bld, build_script)
     @error = nil
     unless File.exist? (path)
       Dir.mkdir(path)
@@ -34,6 +36,7 @@ class MockManager
     @repo_lock = repo_lock
     @git_id = git_id
     @tmp_bld = tmp_bld
+    @build_script = build_script
 
     File.open(cfg_counter_path, "r+") do |f|
       f.flock(File::LOCK_EX)
@@ -178,6 +181,27 @@ class MockManager
     end
   end
 
+  def build_custom()
+    @log.info("Начало сборки пакетов (сценарий кастомной сборки)")
+    result_dir = File.join(@prep_dir, BUILD_STRUCTURE[:RESULT])
+
+    
+    @log.info("Формируем скрипт кастомной сборки #{@build_script[:script_name]}")
+    rcp_name = "custom_#{@build_script[:script_name]}"
+    File.open(File.join(@tmp_src, rcp_name), "w") do |f|
+      f.write(@build_script[:content].gsub(/\r$/, ""))
+    end
+    Dir.chdir(@tmp_src) do
+      script = File.join(@tmp_src, rcp_name)
+      cmd_args = %Q(/usr/bin/bash -x "#{script}" "#{result_dir}")
+      @log.debug(cmd_args)
+      cmd = Runner.new(cmd_args, @log)
+      cmd.run_clean
+      @error = true if cmd.exit_status != 0
+      @log.error("Ошибка операции") if @error
+    end
+  end
+
   def save_logs()
     FileUtils.mkdir_p(File.join(@resultpath, "#{@build_id}"))
     src_result = File.join(@prep_dir, BUILD_STRUCTURE[:RESULT_SRPM])
@@ -304,8 +328,12 @@ class MockManager
           prepare_structure if @error == false
           prepare_src if @error == false
           prepare_source if @error == false
-          prepare_src_rpm if @error == false
-          build_rpm if @error == false
+          if @build_script[:script_name].nil?
+            prepare_src_rpm if @error == false
+            build_rpm if @error == false
+          else
+            build_custom if @error == false
+          end
           save_logs
           save_rpms if @error == false
         rescue => e

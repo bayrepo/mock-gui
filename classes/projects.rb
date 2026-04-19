@@ -324,7 +324,10 @@ class ProjectsActions
         proj_info = get_project(prj_id)
         tmp_bld = false
         tmp_bld = true if proj_info[:tmpstpbuild].to_i != 0
-        mock = MockManager.new(prepare_path, get_project_config(prj_id), counter_file, @db, build_path, repo_path, git_source, build_id, prep_script, spec_file, repo_lock, git_id, tmp_bld)
+        build_script = get_project_custom_build(prj_id, git_id)
+        mock = MockManager.new(prepare_path, get_project_config(prj_id), counter_file, @db, build_path, repo_path, 
+        git_source, build_id, prep_script, spec_file, repo_lock, 
+        git_id, tmp_bld, build_script)
         bld_id = build_id
         @db.update_build_task_error_log(build_id, mock.get_build_process_log)
         @db.update_build_task_status(build_id, 3)
@@ -537,5 +540,72 @@ class ProjectsActions
       Dir.glob(File.join(repo_path, '*')).each { |file| File.unlink(file) if File.file?(file) || FileUtils.rm_rf(file) }
       FileUtils.cp_r(Dir.glob(File.join(snap_path, '*')), repo_path)
     end
+  end
+
+  def get_repo_dirs_list(id)
+    repo_path = get_project_repo(id)
+    dir_list = []
+    if Dir.exist?(repo_path)
+      dir_list = Dir.entries(repo_path).reject { |entry| entry == '.' || entry == '..' || entry == 'repodata' }
+    end
+    dir_list
+  end
+
+  def add_rpm(id, directory, rpm_file)
+    repo_path = get_project_repo(id)
+    if !Dir.exist?(repo_path)
+      return "Репозиторий отсутствует"
+    end
+
+    target_dir = File.join(repo_path, directory)
+    unless Dir.exist?(target_dir)
+      Dir.mkdir(target_dir)
+    end
+
+    target_file = File.join(target_dir, File.basename(rpm_file[:filename]))
+    if File.exist?(target_file)
+      return "Файл #{File.basename(rpm_file[:filename])} уже существует"
+    end
+
+    begin
+      File.open(target_file, "wb") do |file|
+        file.write(rpm_file[:tempfile].read)
+      end
+    rescue => e
+      return "Ошибка при создании файла: #{e.message}"
+    end
+
+    @db.add_custom_rpm_to_proj(id, File.basename(rpm_file[:filename]), target_file)
+
+    nil
+  end
+
+  def get_project_uploaded_rpms(id)
+    list = []
+    rpm_list = @db.get_project_uploaded_rpms(id)
+    rpm_list.each do |item|
+      list << item if File.exist?(item[:rpm_path])
+    end
+    list
+  end
+
+  def get_project_custom_build(id, repo_id)
+    data = {:script_name => nil, :content => nil, :description => nil, :created => nil }
+    result = @db.get_project_custom_build(id, repo_id).first
+    unless result.nil?
+      data[:script_name]=result[:filepath]
+      data[:content]=result[:content]
+      data[:description]=result[:descr]
+      data[:created]=result[:create_at]
+    end
+    data
+  end
+
+  def set_project_custom_build(id, repo_id, script_name, descr, content)
+    @db.set_project_custom_build(id, repo_id, script_name, descr, content)
+  end
+
+  def del_project_custom_build(id, repo_id)
+    @db.del_project_custom_build(id, repo_id)
   end
 end

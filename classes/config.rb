@@ -120,4 +120,12 @@ class IniConfig
       "repoview"
     end
   end
+
+  def get_time_zone
+    unless @config["timezone"]["zone"].nil?
+      @config["timezone"]["zone"].to_s
+    else
+      "Europe/Moscow"
+    end
+  end
 end

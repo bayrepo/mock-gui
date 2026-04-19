@@ -9,6 +9,7 @@ git clone https://dev.brepo.ru/brepo/mock-gui.git
 cd mock-gui/install
 ansible-galaxy install -r requirements.yml
 ansible-playbook mock-gui-install.yml --ask-become-pass
+ansible-playbook docker_install.yml --ask-become-pass (если планируются сборки не только с помощью mock, но и с помощью docker)
 перезагрузить систему
 systemctl enable mockgui
 systemctl start mockgui
@@ -29,6 +30,7 @@ git clone https://dev.brepo.ru/brepo/mock-gui.git
 cd mock-gui/install
 ansible-galaxy install -r requirements.yml
 ansible-playbook mock-gui-install.yml --ask-become-pass
+ansible-playbook docker_install.yml --ask-become-pass (если планируются сборки не только с помощью mock, но и с помощью docker)
 перезагрузить систему
 sudo systemctl enable mockgui
 sudo systemctl start mockgui

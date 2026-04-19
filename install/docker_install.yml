@@ -1,0 +1,47 @@
+---
+- name: Install Docker on AlmaLinux
+  hosts: localhost
+  connection: local
+  become: True
+  become_user: root
+  become_method: su
+  tasks:
+    - name: Remove old Docker packages
+      dnf:
+        name:
+          - docker
+          - docker-client
+          - docker-client-latest
+          - docker-common
+          - docker-latest
+          - docker-latest-logrotate
+          - docker-logrotate
+          - docker-engine
+          - podman
+          - runc
+        state: absent
+
+    - name: Add Docker repository
+      command: sudo dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+    - name: Install Docker components
+      dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Start and enable Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add user mockgui to the docker group
+      user:
+        name: mockgui
+        groups: docker
+        append: yes

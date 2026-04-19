@@ -8,7 +8,6 @@
 
 ПО может быть установлено на следующих ОС:
 
-* MSVSphere 9
 * Almalinux 9
 * RockyLinux 9
 * Centos 9 Stream

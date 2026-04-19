@@ -1,6 +1,12 @@
 require "sequel"
 
 cfg_internal = IniConfig.new()
+
+# Настройте Sequel для использования нужного часового пояса
+Sequel.extension :named_timezones
+Sequel.database_timezone = :utc
+Sequel.application_timezone = cfg_internal.get_time_zone
+
 $DDB = Sequel.connect(cfg_internal.get_db)
 
 class Repos < Sequel::Model(:repos)
@@ -31,6 +37,12 @@ class Rpms < Sequel::Model(:rpms)
 end
 
 class BuildRpms < Sequel::Model(:build_rpm)
+end
+
+class RpmUploaded < Sequel::Model(:rpm_uploaded)
+end
+
+class CustomBuildScript < Sequel::Model(:custom_build_script)
 end
 
 class DBase
@@ -70,6 +82,7 @@ class DBase
     rep_id = Repos.where(reponame: repo_name).first
     unless rep_id[:id].nil?
       id = rep_id[:id]
+      CustomBuildScript.where(repo_id: id).delete
       RepocRecips.where(repo_id: id).delete
       ReposProjects.where(repo_id: id).delete
       Repos.where(reponame: repo_name).delete
@@ -360,6 +373,8 @@ class DBase
       count = count + 1
     end
     return 1 if count > 0
+    CustomBuildScript.where(proj_id: proj_id.to_i).delete
+    RpmUploaded.where(proj_id: prj_id.to_i).delete
     ReposProjects.where(proj_id: prj_id.to_i).delete
     ProjectsReposSpec.where(proj_id: prj_id.to_i).delete
     builds = BuildTask.where(proj_id: prj_id.to_i)
@@ -411,5 +426,32 @@ class DBase
 
   def update_build_task_end_time(build_id)
     BuildTask.where(id: build_id.to_i).update(buildstop: DateTime.now)
+  end
+
+  def add_custom_rpm_to_proj(proj_id, rpm_name, rpm_path)
+    id = RpmUploaded.insert(rpm: rpm_name, rpm_path: rpm_path, proj_id: proj_id.to_i)
+    @last_id = id
+  end
+
+  def get_project_uploaded_rpms(proj_id)
+    RpmUploaded.where(proj_id: proj_id.to_i)
+  end
+
+  def get_project_custom_build(proj_id, git_id)
+    CustomBuildScript.where(proj_id: proj_id.to_i, repo_id: git_id.to_i)
+  end
+
+  def set_project_custom_build(id, repo_id, script_name, descr, content)
+    result = get_project_custom_build(id, repo_id).first
+    unless result.nil?
+      CustomBuildScript.where(id: result[:id]).update(:content => content, :filepath => script_name, :descr => descr)
+    else
+      id = CustomBuildScript.insert(:content => content, :filepath => script_name, :descr => descr, :proj_id => id.to_i, :repo_id => repo_id.to_i)
+      @last_id = id
+    end
+  end
+
+  def del_project_custom_build(id, repo_id)
+    CustomBuildScript.where(proj_id: id.to_i, repo_id: repo_id.to_i).delete
   end
 end

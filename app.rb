@@ -1495,7 +1495,7 @@ get "/prjremoteaddr/:id" do
     if prj_info.nil?
       print_error_page(503, "Путь к проектам не существует")
     else
-      @page_name = "Подписать проект #{prj_info[:projname]}"
+      @page_name = "Установить адрес для репозитория проекта #{prj_info[:projname]}"
       @proj_name = prj_info[:projname]
       @proj_id = params["id"]
       @addres = prj_info[:remote_address]
@@ -1525,6 +1525,53 @@ post "/prjremoteaddr/:id" do
         unless err.nil?
           session[:prj_modal_info] = "Ошибка установки адреса проекта"
           session[:prj_modal_text] = err
+        end
+      end
+      redirect "/prjedit/#{params["id"]}"
+    end
+  end
+end
+
+get "/prjaddrpm/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    if prj_info.nil?
+      print_error_page(503, "Путь к проектам не существует")
+    else
+      @page_name = "Добавить rpm пакет в репозиторий #{prj_info[:projname]}"
+      @proj_name = prj_info[:projname]
+      @proj_id = params["id"]
+      @proj_dir_list = prj.get_repo_dirs_list(params["id"])
+      erb :projaddrpm
+    end
+  end
+end
+
+post "/prjaddrpm/:id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    if prj_info.nil?
+      print_error_page(503, "Путь к проектам не существует")
+    else
+      if params["cancel"].nil? && params["add"] == "add"
+        direct = if params["newdir"].strip == ""
+          params["directory"]
+        else
+          params["newdir"]
+        end
+        puts params
+        err = prj.add_rpm(params["id"], direct, params["rpm_file"])
+        unless err.nil?
+          session[:prj_modal_info] = "Ошибка установки адреса проекта"
+          session[:prj_modal_text] = err
+        else
+          prj.recreate_repo(params["id"])
         end
       end
       redirect "/prjedit/#{params["id"]}"
@@ -1784,6 +1831,219 @@ post "/prjsnap_restore/:id" do
   end
 end
 
+get "/prjuplrpm/:id" do
+  @raw = nil
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    prj_info = prj.get_project(params["id"])
+    if params["p"].nil?
+      filepath = ""
+    else
+      filepath = params["p"]
+    end
+    proj_path = prj.get_project_repo(params["id"])
+    f_path = File.join(proj_path, filepath)
+    if File.exist?(f_path)
+      if File.directory?(f_path)
+        @file_content = []
+      else
+        if File.binary?(f_path)
+          if f_path =~ /\.rpm$/
+            rpm_rd = RPMReader.new
+            rpm_info = rpm_rd.get_rpm_info(f_path)
+            if rpm_info[:error].nil?
+              @raw = f_path
+              rpm_info = rpm_info[:pkginfo]
+              @file_content = []
+              @file_content << "Имя пакета: #{rpm_info.name}"
+              @file_content << "Версия пакета: #{rpm_info.version}"
+              @file_content << ""
+              @file_content << "Changelog:"
+              begin
+                rpm_info.changelog.first(10).each do |entry|
+                  @file_content << "#{entry.time} #{entry.name}"
+                  @file_content << "#{entry.text}"
+                  @file_content << "---------------"
+                end
+              rescue
+                # Если есть ошибка с undefined local variable or method, пропускаем changelog
+                @file_content << "Changelog недоступен"
+              end
+              @file_content << "---------------"
+              @file_content << "Файлы:"
+              rpm_info.files.each do |file|
+                @file_content << "#{file.path} (#{file.size})"
+              end
+              @file_content << "---------------"
+              @file_content << "Зависимости:"
+              rpm_info.provides.each do |item|
+                @file_content << "Provides: #{item.name}"
+              end
+              rpm_info.requires.each do |item|
+                @file_content << "Requires: #{item.name}"
+              end
+              rpm_info.obsoletes.each do |item|
+                @file_content << "Obsoletes: #{item.name}"
+              end
+              rpm_info.conflicts.each do |item|
+                @file_content << "Conflicts: #{item.name}"
+              end
+            else
+              @file_content = ["Двоичный файл"]
+            end
+          else
+            @file_content = ["Двоичный файл"]
+          end
+        else
+          @file_content = File.readlines(f_path)
+        end
+      end
+
+      @files_list = prj.get_project_uploaded_rpms(params["id"]).map do |item|
+        { :file => item[:rpm_path].delete_prefix(proj_path + "/"), :isdir => false, :create_time => item[:create_at] }
+      end
+
+      @page_name = "Список загруженных rpm пакетов для проекта #{prj_info[:projname]}"
+      @proj_info = prj_info
+      @file_name = filepath
+      erb :rpmuploadinfo
+    else
+      print_error_page(503, "Файл не существует")
+    end
+  end
+  
+end
+
+get "/prjcstmbld/:id/:git_id" do
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    repo = GitRepo.new(cfg.get_repo, db)
+    if repo.path.nil?
+      print_error_page(503, "Путь к репозиториям не существует")
+    else
+      prj_info = prj.get_project(params["id"])
+      if prj_info.nil?
+        print_error_page(503, "Путь к проектам не существует")
+      else
+        git_info = repo.get_repo_short_info_by_id(params["git_id"].to_i)
+
+        @page_name = "#{prj_info[:projname]} задать скрипт сборки git проекта #{git_info[:reponame]}"
+        @proj_name = prj_info[:projname]
+        @proj_descr = prj_info[:descr]
+        @git_name = git_info[:reponame]
+        @proj_id = prj_info[:id]
+        @git_id = git_info[:id]
+        cust_bld = prj.get_project_custom_build(prj_info[:id], git_info[:id])
+        if session[:errora_data].nil?
+          @old_filepath = cust_bld[:script_name]
+        else
+          @old_filepath = session[:old_filepath]
+        end
+        if session[:old_content].nil?
+          @old_content = cust_bld[:content]
+        else
+          @old_content = session[:old_content]
+        end
+        if session[:old_descr].nil?
+          @old_descr = cust_bld[:description]
+        else
+          @old_descr = session[:old_descr]
+        end
+        @error_data = session[:errora_data]
+        session[:errora_data] = nil
+        session[:old_filepath] = nil
+        session[:old_descr] = nil
+        session[:old_content] = nil
+        erb :prjcustombld
+      end
+    end
+  end
+end
+
+post "/prjcstmbld/:id/:git_id" do
+  unless params["cancel"].nil?
+              session[:old_filepath] = nil
+              session[:old_descr] = nil
+              session[:old_content] = nil
+              redirect "/prjedit/#{params["id"]}"
+  else
+    session[:old_filepath] = params["filepath"]
+    session[:old_descr] = params["description"]
+    session[:old_content] = params["codedata"]
+    if params["filepath"].nil? || params["description"].nil? || params["filepath"].strip == "" || params["description"].strip == ""
+      session[:errora_data] = "Имя рецепта и описание не должны быть пустыми"
+      redirect "/prjcstmbld/#{params["id"]}/#{params["git_id"]}"
+    else
+      if params["filepath"] =~ /^[0-9a-zA-Z_\.]+$/
+        # Valid filepath
+        # Proceed with further processing
+        codedata = params["codedata"].gsub(/\r$/, "")
+        prj = ProjectsActions.new(cfg.get_projects_path, db)
+        if prj.path.nil?
+          print_error_page(503, "Путь к проектам не существует")
+        else
+          repo = GitRepo.new(cfg.get_repo, db)
+          if repo.path.nil?
+            print_error_page(503, "Путь к репозиториям не существует")
+          else
+            prj_info = prj.get_project(params["id"])
+            if prj_info.nil?
+              print_error_page(503, "Путь к проектам не существует")
+            else
+              unless params["save"].nil?
+                prj.set_project_custom_build(params["id"], params["git_id"], params["filepath"], params["description"], codedata)
+                redirect "/prjedit/#{params["id"]}"
+              end
+            end
+          end
+        end
+      else
+        # Invalid filepath
+        session[:errora_data] = "Недопустимые символы в имени файла"
+        redirect "/prjcstmbld/#{params["id"]}/#{params["git_id"]}"
+      end
+    end
+    
+  end
+  
+end
+
+post "/prjcstmblddel/:id/:git_id" do
+
+  prj = ProjectsActions.new(cfg.get_projects_path, db)
+  if prj.path.nil?
+    print_error_page(503, "Путь к проектам не существует")
+  else
+    repo = GitRepo.new(cfg.get_repo, db)
+    if repo.path.nil?
+      print_error_page(503, "Путь к репозиториям не существует")
+    else
+      prj_info = prj.get_project(params["id"])
+      if prj_info.nil?
+        print_error_page(503, "Путь к проектам не существует")
+      else
+        git_info = repo.get_repo_short_info_by_id(params["git_id"].to_i)
+        input_name = params["rcpnamedup"]
+        info = prj.get_project_custom_build(prj_info[:id], git_info[:id])
+        if info.nil?
+          print_error_page(404, "Скрипта не существует")
+        else
+          puts input_name
+          puts info
+          if info[:script_name] == input_name
+            prj.del_project_custom_build(params["id"], params["git_id"])
+          end
+          redirect "/prjedit/#{params["id"]}"
+        end
+      end
+    end
+  end
+  
+end
 
 get "/sanitize" do
   #Подчистим гит проекты, которые есть в базе, но нет в файловой системе

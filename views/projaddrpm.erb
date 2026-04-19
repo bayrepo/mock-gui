@@ -1,0 +1,33 @@
+<%= erb :header %>
+    <div class="container">
+        <h2 class="text-center">Установить адрес для репозитория проекта <%= @proj_name %></h2>
+        <form action="/prjaddrpm/<%= ERB::Util.url_encode(@proj_id) %>" method="post" enctype='multipart/form-data'>
+            <div class="text-center pb-3">
+                <label class="form-label" for="newdir">
+                    Создать новый каталог с именем (может быть пустым, если уже существует нужный каталог):
+                </label>
+                <input class="form-control" type="text" id="newdir" name="newdir" value="">
+            </div>
+            <div class="text-center pb-3">
+                <label class="form-label" for="directory">
+                    Выберите каталог куда будет помещен файл:
+                </label>
+                <select class="form-select" id="directory" name="directory">
+                    <% @proj_dir_list.each do |dir| %>
+                        <option value="<%= ERB::Util.html_escape(dir) %>"><%= ERB::Util.html_escape(dir) %></option>
+                    <% end %>
+                </select>
+            </div>
+            <div class="text-center pb-3">
+                <label class="form-label" for="rpm_file">
+                    Укажите rpm файл:
+                </label>
+                <input class="form-control" type="file" id="rpm_file" name="rpm_file" required>
+            </div>
+            <div class="mb-3 text-center">
+                <button type="submit" class="btn btn-primary" name="cancel" value="cancel">Отменить</button>
+                <button type="submit" class="btn btn-danger" name="add" value="add">Добавить</button>
+            </div>
+        </form>
+    </div>
+<%= erb :footer %>
